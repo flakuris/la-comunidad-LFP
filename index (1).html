@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Comunidad LFP</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <header class="site-header">
+        <div class="brand">
+            <img src="logo.jpeg" alt="Logo LFP" class="logo">
+            <span class="brand-title">Comunidad LFP</span>
+        </div>
+        <nav id="main-nav">
+            <button data-page="inicio" class="nav-link active">Inicio</button>
+            <button data-page="miembros" class="nav-link">Miembros</button>
+            <button data-page="eventos" class="nav-link">Eventos</button>
+            <button data-page="mapa" class="nav-link">Mapa</button>
+        </nav>
+        <div class="header-actions">
+            <button id="login-btn" class="btn-primary">Configuración</button>
+            <button id="logout-btn" class="btn-secondary" style="display: none;">Salir</button>
+        </div>
+    </header>
+
+    <main>
+        <div id="page-inicio" class="page active">
+            <div class="hero-card card">
+                <img src="logo.jpeg" alt="Logo LFP" class="logo-large">
+                <h1>Bienvenidos a la Comunidad LFP</h1>
+                <p class="lead-text">La Comunidad LFP reúne a profesionales y emprendedores de diversos sectores, fomentando la colaboración y el crecimiento conjunto. Si eres parte y aún no apareces, puedes agregarte utilizando el formulario.</p>
+                <div class="button-group">
+                    <button id="goto-members-btn" class="btn-primary">Ver Miembros</button>
+                    <button id="open-member-modal-hero" class="btn-secondary">Agregar Nuevo Miembro</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Próximos Eventos</h2>
+                <div id="home-events-container" class="grid-container">
+                    </div>
+            </div>
+
+            <div class="card text-center">
+                <p class="highlight-text"><b>Esta es una herramienta para fortalecer los lazos entre los miembros y facilitar el contacto directo. Explora, conecta y participa.</b></p>
+            </div>
+        </div>
+
+        <div id="page-miembros" class="page">
+            <div class="page-header">
+                <h1>Miembros de la Comunidad</h1>
+                <p>Conecta con otros profesionales y emprendedores.</p>
+                <div class="filters">
+                    <input type="text" id="search-members" placeholder="Buscar por nombre o empresa..." class="search-input">
+                    <select id="filter-rubro" class="search-input">
+                        <option value="">Todos los Rubros</option>
+                        <option>Industria / Producción</option>
+                        <option>Comercio / Ventas</option>
+                        <option>Servicios / Oficios</option>
+                        <option>Construcción</option>
+                        <option>Transporte / Logística</option>
+                        <option>Gastronomía</option>
+                        <option>Educación / Cultura</option>
+                        <option>Salud / Bienestar</option>
+                        <option>Tecnología / Comunicación</option>
+                        <option>Agro / Medioambiente</option>
+                        <option>Administración / Finanzas</option>
+                        <option>Estudiante</option>
+                        <option>Otro</option>
+                    </select>
+                </div>
+                <div class="action-buttons-miembros">
+                    <button id="open-member-modal-members" class="btn-primary">Agregar Miembro</button>
+                    <button id="download-members-csv-btn" class="btn-secondary admin-only" style="display:none;">Descargar Miembros (CSV)</button>
+                </div>
+            </div>
+            <div id="members-container" class="grid-container"></div>
+        </div>
+
+        <div id="page-eventos" class="page">
+             <div class="page-header">
+                <h1>Todos los Eventos</h1>
+                <p>Participa en nuestras actividades y encuentros.</p>
+                 <button id="open-event-modal-btn" class="btn-primary admin-only" style="display:none;">Crear Evento</button>
+            </div>
+            <div id="events-container" class="grid-container"></div>
+        </div>
+
+        <div id="page-mapa" class="page">
+            <div class="page-header">
+                <h1>Mapa de la Comunidad</h1>
+                <p>Explora dónde se encuentran los miembros de la comunidad.</p>
+            </div>
+            <div class="card map-card">
+                 <div id="map"></div>
+            </div>
+            <div id="map-legend" class="card">
+                </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <p>© 2025 Comunidad LFP - Todos los derechos reservados</p>
+    </footer>
+    
+    <div id="login-modal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Clave de Administrador</h2><button class="close-modal">&times;</button></div><form id="login-form"><div class="form-group"><label>Clave</label><input id="login-password" type="password" required></div><div class="form-actions"><button type="submit" class="btn-primary">Ingresar</button></div></form></div></div>
+    <div id="member-modal" class="modal"><div class="modal-content"><div class="modal-header"><h2 id="member-modal-title">Agregar Miembro</h2><button class="close-modal">&times;</button></div>
+        <form id="member-form">
+          <input type="hidden" id="member-edit-index">
+          <div class="form-group"><label>Nombre *</label><input id="nombre" type="text" required></div>
+          <div class="form-group"><label>Apellido *</label><input id="apellido" type="text" required></div>
+          <div class="form-group full-width"><label>Empresa *</label><input id="empresa" type="text" required></div>
+          <div class="form-group full-width"><label>Breve descripción (máx. 300 caracteres)</label><textarea id="descripcion" maxlength="300" rows="3"></textarea></div>
+          <div class="form-group"><label>Email *</label><input id="email" type="email" required></div>
+          <div class="form-group"><label>Teléfono (Empresa)</label><input id="telefono" type="tel" placeholder="Ej: +54 9 11 5555-1234"></div>
+          <div class="form-group full-width"><label>Dirección (Calle, N°, Ciudad, Prov) *</label><input id="direccion" type="text" placeholder="Ej: Av. Colón 123, Córdoba, Argentina" required></div>
+          <div class="form-group"><label>Rubro *</label>
+              <select id="rubro" required>
+                  <option value="">Seleccione un rubro</option>
+                  <option>Industria / Producción</option>
+                  <option>Comercio / Ventas</option>
+                  <option>Servicios / Oficios</option>
+                  <option>Construcción</option>
+                  <option>Transporte / Logística</option>
+                  <option>Gastronomía</option>
+                  <option>Educación / Cultura</option>
+                  <option>Salud / Bienestar</option>
+                  <option>Tecnología / Comunicación</option>
+                  <option>Agro / Medioambiente</option>
+                  <option>Administración / Finanzas</option>
+                  <option>Estudiante</option>
+                  <option>Otro</option>
+              </select>
+          </div>
+          <div class="form-group" id="estudiante-group" style="display:none;"><label>Estudiante de</label><input id="estudiante-detalle" type="text"></div>
+          <div class="form-group"><label>Instagram Empresa</label><input id="instagram" type="text" placeholder="empresa_lfp"></div>
+          <div class="form-group"><label>Instagram Personal</label><input id="instagram-personal" type="text" placeholder="usuario_personal"></div>
+          <div class="form-group"><label>X.com (Twitter)</label><input id="x-twitter" type="text" placeholder="usuario_x"></div>
+          <div class="form-group"><label>Sitio Web</label><input id="web" type="url" placeholder="https://ejemplo.com"></div>
+          <div class="form-actions full-width"><button type="submit" class="btn-primary">Guardar</button></div>
+        </form>
+    </div></div>
+    <div id="event-modal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Crear Nuevo Evento</h2><button class="close-modal">&times;</button></div><form id="event-form"><div class="form-group full-width"><label>Nombre del Evento *</label><input id="event-title" type="text" required></div><div class="form-group"><label>Fecha *</label><input id="event-date" type="date" required></div><div class="form-group"><label>Descripción</label><textarea id="event-desc" rows="3"></textarea></div><div class="form-actions"><button type="submit" class="btn-primary">Guardar</button></div></form></div></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/
