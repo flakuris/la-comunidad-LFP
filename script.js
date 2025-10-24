@@ -15,92 +15,45 @@ let isAdmin = false;
 let map;
 let markersLayer;
 
-// --- FUNCIÓN DE INICIALIZACIÓN PRINCIPAL ---
-function initializeApp() {
+// --- INICIALIZACIÓN ---
+document.addEventListener("DOMContentLoaded", () => {
     loadData();
     setupEventListeners();
     checkAuthStatus();
     showPage('inicio');
-    renderEventos("home-events-container", 3);
-}
-
-// --- ESCUCHADOR QUE GARANTIZA LA EJECUCIÓN ---
-document.addEventListener("DOMContentLoaded", initializeApp);
-window.onload = function() {
-    // Si la página carga muy lento, esto asegura que el mapa se inicialice
-    if (document.getElementById('page-mapa') && document.getElementById('page-mapa').classList.contains('active')) {
-        initMap();
-    }
-}
-
+});
 
 // --- EVENT LISTENERS ---
 function setupEventListeners() {
-    // 1. Navegación Principal
     document.querySelectorAll('#main-nav .nav-link').forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault(); // Evita el comportamiento por defecto de algunos navegadores
-            showPage(link.dataset.page);
-        });
+        link.addEventListener('click', () => showPage(link.dataset.page));
     });
-
-    // 2. Botones de Inicio/Miembros
-    const gotoMembersBtn = document.getElementById('goto-members-btn');
-    if (gotoMembersBtn) gotoMembersBtn.addEventListener('click', () => showPage('miembros'));
+    document.getElementById('goto-members-btn').addEventListener('click', () => showPage('miembros'));
+    document.getElementById('open-member-modal-hero').addEventListener('click', () => openMemberModal());
+    document.getElementById('open-member-modal-members').addEventListener('click', () => openMemberModal());
+    document.getElementById('login-btn').addEventListener('click', () => toggleModal('login-modal', true));
+    document.getElementById('logout-btn').addEventListener('click', logout);
+    document.getElementById('open-event-modal-btn').addEventListener('click', openEventModal);
+    // NUEVO: Listener para el botón de descarga
+    document.getElementById('download-members-csv-btn').addEventListener('click', downloadMembersCSV); 
     
-    const openMemberModalHero = document.getElementById('open-member-modal-hero');
-    if (openMemberModalHero) openMemberModalHero.addEventListener('click', () => openMemberModal());
-    
-    const openMemberModalMembers = document.getElementById('open-member-modal-members');
-    if (openMemberModalMembers) openMemberModalMembers.addEventListener('click', () => openMemberModal());
-
-    // 3. Admin / Login
-    const loginBtn = document.getElementById('login-btn');
-    if (loginBtn) loginBtn.addEventListener('click', () => toggleModal('login-modal', true));
-    
-    const logoutBtn = document.getElementById('logout-btn');
-    if (logoutBtn) logoutBtn.addEventListener('click', logout);
-    
-    const openEventModalBtn = document.getElementById('open-event-modal-btn');
-    if (openEventModalBtn) openEventModalBtn.addEventListener('click', openEventModal);
-
-    // 4. Funcionalidad de datos
-    const downloadCsvBtn = document.getElementById('download-members-csv-btn');
-    if (downloadCsvBtn) downloadCsvBtn.addEventListener('click', downloadMembersCSV); 
-    
-    const searchMembers = document.getElementById('search-members');
-    if (searchMembers) searchMembers.addEventListener('input', renderMiembros);
-    
-    const filterRubro = document.getElementById('filter-rubro');
-    if (filterRubro) filterRubro.addEventListener('change', renderMiembros);
-    
-    const rubroSelect = document.getElementById('rubro');
-    if (rubroSelect) rubroSelect.addEventListener('change', handleRubroChange);
-    
-    // 5. Modales y Formularios
     document.querySelectorAll('.close-modal').forEach(btn => {
         btn.addEventListener('click', (e) => e.target.closest('.modal').classList.remove('active'));
     });
-    
-    const loginForm = document.getElementById('login-form');
-    if (loginForm) loginForm.addEventListener('submit', handleLogin);
-    
-    const memberForm = document.getElementById('member-form');
-    if (memberForm) memberForm.addEventListener('submit', handleMemberForm);
-    
-    const eventForm = document.getElementById('event-form');
-    if (eventForm) eventForm.addEventListener('submit', handleEventForm);
+    document.getElementById('login-form').addEventListener('submit', handleLogin);
+    document.getElementById('member-form').addEventListener('submit', handleMemberForm);
+    document.getElementById('event-form').addEventListener('submit', handleEventForm);
+    document.getElementById('search-members').addEventListener('input', renderMiembros);
+    document.getElementById('filter-rubro').addEventListener('change', renderMiembros);
+    document.getElementById('rubro').addEventListener('change', handleRubroChange);
 }
 
 // --- NAVEGACIÓN Y MODALES ---
 function showPage(pageId) {
     document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
-    const pageElement = document.getElementById(`page-${pageId}`);
-    if (pageElement) pageElement.classList.add("active");
-    
+    document.getElementById(`page-${pageId}`).classList.add("active");
     document.querySelectorAll('.nav-link').forEach(link => link.classList.toggle('active', link.dataset.page === pageId));
-    
-    if (pageId === "mapa") initMap(); // Inicializa el mapa solo cuando la página está activa
+    if (pageId === "mapa") initMap();
 }
 function toggleModal(modalId, show) {
     const modal = document.getElementById(modalId);
@@ -110,14 +63,10 @@ function toggleModal(modalId, show) {
 // --- ADMINISTRACIÓN ---
 function checkAuthStatus() {
     isAdmin = sessionStorage.getItem('isAdmin') === 'true';
+    // Muestra/oculta elementos de administrador
     document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? 'inline-block' : 'none');
-    
-    const loginBtn = document.getElementById('login-btn');
-    if (loginBtn) loginBtn.style.display = isAdmin ? 'none' : 'block';
-    
-    const logoutBtn = document.getElementById('logout-btn');
-    if (logoutBtn) logoutBtn.style.display = isAdmin ? 'block' : 'none';
-    
+    document.getElementById('login-btn').style.display = isAdmin ? 'none' : 'block';
+    document.getElementById('logout-btn').style.display = isAdmin ? 'block' : 'none';
     renderAll();
 }
 function handleLogin(event) {
@@ -138,8 +87,6 @@ function logout() {
 // --- MIEMBROS ---
 function renderMiembros() {
     const container = document.getElementById("members-container");
-    if (!container) return; // Asegura que el contenedor existe
-    
     const searchTerm = document.getElementById('search-members').value.toLowerCase();
     const filterValue = document.getElementById('filter-rubro').value;
     let filteredMiembros = miembros;
@@ -186,11 +133,8 @@ function renderMiembros() {
 }
 function openMemberModal(index = null) {
     const form = document.getElementById("member-form");
-    if (!form) return;
     form.reset();
     handleRubroChange();
-    
-    // ... (El resto de la lógica de edición de modal es igual)
     if (index !== null && miembros[index]) {
         const m = miembros[index];
         document.getElementById("member-modal-title").textContent = "Editar Miembro";
@@ -200,7 +144,7 @@ function openMemberModal(index = null) {
         document.getElementById("empresa").value = m.empresa;
         document.getElementById("descripcion").value = m.descripcion;
         document.getElementById("email").value = m.email;
-        document.getElementById("telefono").value = m.telefono || "";
+        document.getElementById("telefono").value = m.telefono || ""; // Cargar campo de Teléfono
         document.getElementById("direccion").value = m.direccion;
         document.getElementById("rubro").value = m.rubro;
         document.getElementById("instagram").value = m.instagram;
@@ -219,16 +163,8 @@ async function handleMemberForm(event) {
     event.preventDefault();
     const form = event.target;
     const address = form.querySelector("#direccion").value.trim();
-    
-    // Simplificamos la geocodificación para evitar fallas en el formulario
-    let coords = { lat: null, lng: null };
-    try {
-        coords = await geocodeAddress(address);
-    } catch (e) {
-        console.error("Error al obtener coordenadas:", e);
-    }
-    
-    if (!coords.lat && address) console.warn("No se pudo geocodificar la dirección. Se guarda sin coordenadas.");
+    const coords = await geocodeAddress(address);
+    if (!coords && address) alert("No se pudo encontrar la dirección. Se guardará sin ubicación en el mapa.");
 
     const miembro = {
         nombre: form.querySelector("#nombre").value.trim(),
@@ -236,7 +172,7 @@ async function handleMemberForm(event) {
         empresa: form.querySelector("#empresa").value.trim(),
         descripcion: form.querySelector("#descripcion").value.trim(),
         email: form.querySelector("#email").value.trim(),
-        telefono: form.querySelector("#telefono").value.trim(),
+        telefono: form.querySelector("#telefono").value.trim(), // Guardar campo de Teléfono
         direccion: address,
         rubro: form.querySelector("#rubro").value,
         estudianteDetalle: form.querySelector("#estudiante-detalle").value.trim(),
@@ -244,8 +180,8 @@ async function handleMemberForm(event) {
         instagram_personal: form.querySelector("#instagram-personal").value.trim(),
         x_twitter: form.querySelector("#x-twitter").value.trim(),
         web: form.querySelector("#web").value.trim(),
-        lat: coords.lat,
-        lng: coords.lng
+        lat: coords ? coords.lat : null,
+        lng: coords ? coords.lng : null
     };
 
     const editIndex = form.querySelector("#member-edit-index").value;
@@ -264,30 +200,28 @@ function deleteMember(index) {
 function handleRubroChange() {
     const rubroSelect = document.getElementById('rubro');
     const estudianteGroup = document.getElementById('estudiante-group');
-    if (!rubroSelect || !estudianteGroup) return;
+    // Mostrar campo de detalle solo si el rubro es "Estudiante"
     estudianteGroup.style.display = (rubroSelect.value === 'Estudiante') ? 'block' : 'none';
-    if (rubroSelect.value !== 'Estudiante' && document.getElementById('estudiante-detalle')) {
-        document.getElementById('estudiante-detalle').value = '';
-    }
+    if (rubroSelect.value !== 'Estudiante') document.getElementById('estudiante-detalle').value = '';
 }
 
-// --- EXPORTAR CSV ---
+// --- EXPORTAR CSV (NUEVA FUNCIÓN) ---
 function downloadMembersCSV() {
     if (miembros.length === 0) {
         alert("No hay miembros para exportar.");
         return;
     }
-    // ... (El resto del código de exportación CSV es el mismo)
+
     const headers = [
         "Nombre", "Apellido", "Empresa", "Rubro", "Estudiante_Detalle", "Email", "Telefono",
         "Descripcion", "Direccion", "Instagram_Empresa", "Instagram_Personal", "X_Twitter", "Web", "Latitud", "Longitud"
     ];
 
-    let csvContent = headers.join(";") + "\n"; 
+    let csvContent = headers.join(";") + "\n"; // Usamos punto y coma (;) como separador para compatibilidad con Excel
 
     miembros.forEach(m => {
         const row = [
-            m.nombre, m.apellido, m.empresa, m.rubro, m.estudianteDetalle, m.email, m.telefono, 
+            m.nombre, m.apellido, m.empresa, m.rubro, m.estudianteDetalle, m.email, m.telefono, // Incluir Teléfono
             `"${(m.descripcion || "").replace(/"/g, '""')}"`, 
             `"${(m.direccion || "").replace(/"/g, '""')}"`, 
             m.instagram, m.instagram_personal, m.x_twitter, m.web, m.lat, m.lng
@@ -295,6 +229,7 @@ function downloadMembersCSV() {
         csvContent += row.map(item => item !== null ? item : '').join(";") + "\n";
     });
 
+    // Crear el enlace de descarga
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -310,8 +245,6 @@ function downloadMembersCSV() {
 // --- EVENTOS ---
 function renderEventos(containerId = "events-container", limit = 0) {
     const container = document.getElementById(containerId);
-    if (!container) return; // Asegura que el contenedor existe
-    // ... (El resto de la lógica de renderEventos es el mismo)
     container.innerHTML = "";
     
     let eventsToShow = [...eventos].reverse();
@@ -333,23 +266,13 @@ function renderEventos(containerId = "events-container", limit = 0) {
             </div>`;
     });
 }
-function openEventModal() { 
-    const form = document.getElementById("event-form");
-    if(form) form.reset();
-    toggleModal('event-modal', true); 
-}
+function openEventModal() { document.getElementById("event-form").reset(); toggleModal('event-modal', true); }
 function handleEventForm(event) {
     event.preventDefault();
-    const titleInput = document.getElementById("event-title");
-    const dateInput = document.getElementById("event-date");
-    const descInput = document.getElementById("event-desc");
-    
-    if (!titleInput || !dateInput || !descInput) return;
-
     eventos.push({
-        title: titleInput.value,
-        date: dateInput.value,
-        desc: descInput.value
+        title: document.getElementById("event-title").value,
+        date: document.getElementById("event-date").value,
+        desc: document.getElementById("event-desc").value
     });
     saveAndRenderAll();
     toggleModal('event-modal', false);
@@ -362,28 +285,21 @@ function deleteEvent(index) {
 }
 
 // --- MAPA ---
-// ... (Funciones de mapa son las mismas)
 function createCustomIcon(color) {
     const markerHtml = `<div style="background-color: ${color}; width: 2rem; height: 2rem; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 1px solid #FFFFFF; box-shadow: 0 2px 5px rgba(0,0,0,0.4);"></div>`;
     return L.divIcon({ html: markerHtml, className: "dummy", iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
 }
 function initMap() {
-    if (!document.getElementById('map')) return; 
     if (!map) {
         map = L.map('map').setView([-38, -63], 4);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM' }).addTo(map);
         markersLayer = L.layerGroup().addTo(map);
     }
-    // Forzamos un 'invalidateSize' para que el mapa se muestre correctamente
-    setTimeout(() => { 
-        if(map) map.invalidateSize();
-    }, 10);
     renderMapMarkers();
     renderMapLegend();
 }
 function renderMapLegend() {
     const legendContainer = document.getElementById('map-legend');
-    if (!legendContainer) return;
     legendContainer.innerHTML = '<h3>Leyenda de Rubros</h3><ul>';
     for (const rubro in rubroColors) {
         legendContainer.innerHTML += `
@@ -406,12 +322,12 @@ function renderMapMarkers() {
     });
 }
 async function geocodeAddress(address) {
-    if (!address) return { lat: null, lng: null };
+    if (!address) return null;
     try {
         const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
         const data = await response.json();
-        return data && data.length > 0 ? { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) } : { lat: null, lng: null };
-    } catch (error) { console.error("Error de geocodificación:", error); return { lat: null, lng: null }; }
+        return data && data.length > 0 ? { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) } : null;
+    } catch (error) { console.error("Error de geocodificación:", error); return null; }
 }
 
 // --- GUARDADO Y CARGA ---
@@ -428,5 +344,5 @@ function renderAll() {
     renderMiembros();
     renderEventos("events-container");
     renderEventos("home-events-container", 3);
-    if(map) renderMapMarkers(); 
+    renderMapMarkers();
 }
