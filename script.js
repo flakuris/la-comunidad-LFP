@@ -144,7 +144,7 @@ function openMemberModal(index = null) {
         document.getElementById("empresa").value = m.empresa;
         document.getElementById("descripcion").value = m.descripcion;
         document.getElementById("email").value = m.email;
-        document.getElementById("telefono").value = m.telefono || ""; // Cargar campo de Teléfono
+        document.getElementById("telefono").value = m.telefono || ""; // Cargar nuevo campo
         document.getElementById("direccion").value = m.direccion;
         document.getElementById("rubro").value = m.rubro;
         document.getElementById("instagram").value = m.instagram;
@@ -172,7 +172,7 @@ async function handleMemberForm(event) {
         empresa: form.querySelector("#empresa").value.trim(),
         descripcion: form.querySelector("#descripcion").value.trim(),
         email: form.querySelector("#email").value.trim(),
-        telefono: form.querySelector("#telefono").value.trim(), // Guardar campo de Teléfono
+        telefono: form.querySelector("#telefono").value.trim(), // Guardar nuevo campo
         direccion: address,
         rubro: form.querySelector("#rubro").value,
         estudianteDetalle: form.querySelector("#estudiante-detalle").value.trim(),
@@ -222,7 +222,7 @@ function downloadMembersCSV() {
     miembros.forEach(m => {
         const row = [
             m.nombre, m.apellido, m.empresa, m.rubro, m.estudianteDetalle, m.email, m.telefono, // Incluir Teléfono
-            `"${(m.descripcion || "").replace(/"/g, '""')}"`, 
+            `"${(m.descripcion || "").replace(/"/g, '""')}"`, // Escapar comillas en la descripción
             `"${(m.direccion || "").replace(/"/g, '""')}"`, 
             m.instagram, m.instagram_personal, m.x_twitter, m.web, m.lat, m.lng
         ];
@@ -245,6 +245,7 @@ function downloadMembersCSV() {
 // --- EVENTOS ---
 function renderEventos(containerId = "events-container", limit = 0) {
     const container = document.getElementById(containerId);
+    // ... (El resto del código de renderEventos es el mismo)
     container.innerHTML = "";
     
     let eventsToShow = [...eventos].reverse();
