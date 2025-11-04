@@ -1,517 +1,100 @@
-/* ========================================================== */
-/* 1. RESET Y VARIABLES GLOBALES */
-/* ========================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&display=swap');
+
 :root {
     --primary-blue: #2563eb;
-    --primary-green: #10b981;
-    --primary-red: #ef4444;
-    --bg-color: #f8f9fa;
+    --primary-green: #16a34a;
+    --danger-red: #dc2626;
+    --text-dark: #0f172a;
+    --text-light: #475569;
+    --background: #f1f5f9;
     --card-bg: #ffffff;
-    --text-dark: #212529;
-    --text-light: #495057;
     --border-color: #e2e8f0;
-    --shadow-color: rgba(0, 0, 0, 0.05);
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Manrope', sans-serif; background-color: var(--background); color: var(--text-dark); line-height: 1.6; }
+.site-header { background-color: var(--card-bg); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 100; }
+.brand { display: flex; align-items: center; gap: 1rem; }
+.logo { height: 40px; }
+.brand-title { font-weight: 800; font-size: 1.25rem; }
+.nav-link { font-size: 1rem; font-weight: 700; color: var(--text-light); background: none; border: none; padding: 0.5rem 1rem; margin: 0 0.25rem; border-radius: 8px; cursor: pointer; transition: color 0.2s, background-color 0.2s; }
+.nav-link:hover { background-color: #eef2ff; color: var(--primary-blue); }
+.nav-link.active { color: var(--primary-blue); font-weight: 800; }
+main { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+.page { display: none; }
+.page.active { display: block; animation: fadeIn 0.5s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.page-header { text-align: center; margin-bottom: 2rem; }
+.page-header h1 { font-size: 2.5rem; }
+.page-header p { color: var(--text-light); }
+.page-header button { margin-top: 1.5rem; }
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-dark);
-    line-height: 1.6;
-}
-
-.container {
-    width: 95%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem 0;
-}
-
-/* ========================================================== */
-/* 2. DISEÑO Y TIPOGRAFÍA */
-/* ========================================================== */
-
-h2 {
-    color: var(--primary-blue);
-    margin-bottom: 1.5rem;
-    font-size: 1.8rem;
-}
-
-h3 {
-    margin-top: 0;
-    font-size: 1.25rem;
-}
-
-.card {
-    background-color: var(--card-bg);
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px var(--shadow-color);
-    margin-bottom: 1.5rem;
-    position: relative;
-}
-
-/* Grillas Generales */
-.grid-2-cols {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-}
-
-/* Ocultar/Mostrar Páginas */
-.page {
-    display: none;
-    padding: 1rem 0;
-}
-.page.active {
-    display: block;
-}
-
-/* ========================================================== */
-/* 3. BOTONES Y FORMULARIOS */
-/* ========================================================== */
-
-.btn-primary, .btn-secondary, .btn-success, .btn-outline, .btn-danger {
-    padding: 0.6rem 1.2rem;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.2s, box-shadow 0.2s, border-color 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    text-decoration: none;
-    text-align: center;
-}
-
-.btn-primary {
-    background-color: var(--primary-blue);
-    color: white;
-}
-.btn-primary:hover {
-    background-color: #1e40af;
-}
-
-.btn-success {
-    background-color: var(--primary-green);
-    color: white;
-}
-.btn-success:hover {
-    background-color: #059669;
-}
-
-.btn-secondary {
-    background-color: var(--text-light);
-    color: white;
-}
-.btn-secondary:hover {
-    background-color: #343a40;
-}
-
-.btn-danger {
-    background-color: var(--primary-red);
-    color: white;
-}
-.btn-danger:hover {
-    background-color: #c81e1e;
-}
-
-.btn-outline {
-    background-color: transparent;
-    color: var(--primary-blue);
-    border: 2px solid var(--primary-blue);
-}
-.btn-outline:hover {
-    background-color: var(--primary-blue);
-    color: white;
-}
-
-.form-group {
-    margin-bottom: 1rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.3rem;
-    font-weight: 600;
-    font-size: 0.9rem;
-}
-
-.form-group input, .form-group select, .form-group textarea {
-    width: 100%;
-    padding: 0.7rem;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    font-size: 1rem;
-    background-color: var(--card-bg);
-}
-
-.form-actions {
+/* NUEVO CONTENEDOR PARA BOTONES EN MIEMBROS */
+.action-buttons-miembros {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
     margin-top: 1.5rem;
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
+    flex-wrap: wrap; /* Para que se adapten bien en el celular */
 }
 
-
-/* ========================================================== */
-/* 4. ENCABEZADO Y NAVEGACIÓN */
-/* ========================================================== */
-
-#main-header {
-    background-color: var(--card-bg);
-    border-bottom: 1px solid var(--border-color);
-    box-shadow: 0 1px 3px var(--shadow-color);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
-
-.header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 0;
-}
-
-.logo {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary-blue);
-}
-
-#main-nav {
-    display: flex;
-    gap: 1rem;
-}
-
-.nav-link {
-    text-decoration: none;
-    color: var(--text-light);
-    padding: 0.5rem 0.8rem;
-    border-radius: 4px;
-    transition: color 0.2s, background-color 0.2s;
-}
-
-.nav-link:hover, .nav-link.active {
-    color: var(--primary-blue);
-    background-color: #f0f4ff;
-}
-
-/* Footer */
-footer {
-    background-color: var(--text-dark);
-    color: white;
-    text-align: center;
-    padding: 1rem 0;
-    margin-top: 2rem;
-    font-size: 0.9rem;
-}
-
-/* ========================================================== */
-/* 5. MODALES (FIX RESPONSIVIDAD INCLUIDO) */
-/* ========================================================== */
-
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: none; /* Oculto por defecto */
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
-}
-
-.modal.active {
-    display: flex;
-}
-
-.modal-content {
-    /* Altura máxima para permitir el desplazamiento en pantallas pequeñas */
-    max-height: 90vh; 
-    overflow-y: auto; /* Permite el scroll si el contenido es largo */
-    width: 90%; 
-    max-width: 600px;
-    
-    background-color: var(--card-bg);
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    position: relative;
-}
-
-.close-modal {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: var(--text-light);
-    cursor: pointer;
-}
-
-/* ========================================================== */
-/* 6. VISTAS ESPECÍFICAS */
-/* ========================================================== */
-
-/* A. MIEMBROS */
-.member-controls {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.member-controls input, .member-controls select {
-    flex-grow: 1;
-    min-width: 150px;
-}
-
-.member-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-}
-
-.member-card {
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-}
-
-.member-card h3 {
-    margin-bottom: 0.5rem;
-    color: var(--primary-blue);
-}
-
-.member-card .empresa {
-    font-weight: 600;
-    color: var(--text-dark);
-    margin-bottom: 0.5rem;
-}
-
-.member-card .descripcion {
-    font-style: italic;
-    margin-bottom: 1rem;
-    color: var(--text-light);
-}
-
-.member-card p {
-    font-size: 0.95rem;
-    margin-bottom: 0.4rem;
-}
-
-.member-links {
-    margin-top: auto;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.btn-social {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.9rem;
-    min-width: 100px;
-    justify-content: center;
-}
-
-.card-admin-actions {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    display: flex;
-    gap: 0.5rem;
-}
-.card-admin-actions button {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.8rem;
-}
-
-/* B. EVENTOS y BENEFICIOS */
-.event-card, .benefit-card {
-    display: flex;
-    flex-direction: column;
-}
-
-.event-card .date {
-    font-style: italic;
-    color: var(--text-light);
-    margin-bottom: 1rem;
-}
-
-.benefit-card .highlight-text {
-    background-color: #fffbeb;
-    color: #b45309;
-    padding: 0.5rem;
-    border-radius: 4px;
-    margin: 1rem 0;
-}
-
-/* C. MAPA Y LEYENDA */
-.map-wrapper {
-    display: grid;
-    grid-template-columns: 3fr 1fr; /* Mapa 75%, Leyenda 25% */
-    gap: 1.5rem;
-    height: 70vh; /* Altura fija para el mapa */
-}
-
-#map {
-    height: 100%;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px var(--shadow-color);
-    z-index: 1; /* Asegura que esté sobre otros elementos */
-}
-
-#map-legend {
-    overflow-y: auto;
-}
-
-#map-legend ul {
-    list-style: none;
-    padding: 0;
-    display: flex;
-    flex-direction: column; /* Cambiado a columna para mejor vista en escritorio */
-    gap: 0.5rem; 
-}
-
-/* Estilo base del botón de filtro */
-.legend-filter-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    width: 100%;
-    padding: 0.5rem 0.8rem;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    background-color: var(--card-bg);
-    color: var(--text-dark);
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: left;
-}
-
-.legend-filter-btn:hover {
-    background-color: #eef2ff;
-    border-color: var(--primary-blue);
-}
-
-/* Estilo cuando el filtro está ACTIVO */
-.legend-filter-btn.active-filter {
-    background-color: var(--primary-blue);
-    color: white;
-    border-color: var(--primary-blue);
-    font-weight: 700;
-    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
-}
-
-.legend-filter-btn.active-filter .legend-color {
-    border: 2px solid white; 
-}
-
-.legend-color { 
-    width: 18px; 
-    height: 18px; 
-    border-radius: 4px; 
-    border: 1px solid rgba(0,0,0,0.1); 
-    flex-shrink: 0;
-}
-
-
-/* ========================================================== */
-/* 7. RESPONSIVIDAD (MÓVIL) */
-/* ========================================================== */
-
+.filters { display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap; }
+.search-input { padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; font-family: 'Manrope', sans-serif; min-width: 250px; }
+.card { background-color: var(--card-bg); padding: 2rem; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 1.5rem; }
+.hero-card { text-align: center; }
+.hero-card .logo-large { height: 80px; margin-bottom: 1rem; }
+.hero-card h1 { font-size: 2rem; font-weight: 800; }
+.hero-card .lead-text { max-width: 600px; margin: 1rem auto 0; color: var(--text-light); }
+.card h2 { margin-bottom: 1rem; font-weight: 800; }
+.card.text-center { text-align: center; }
+.highlight-text { font-weight: 700; }
+.button-group { margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; }
+.btn-primary, .btn-secondary, .btn-danger { padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; text-decoration: none; display: inline-block; }
+.btn-primary:hover, .btn-secondary:hover, .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
+.btn-primary { background-color: var(--primary-blue); color: white; }
+.btn-secondary { background-color: var(--primary-green); color: white; }
+.btn-danger { background-color: var(--danger-red); color: white; }
+.btn-outline { background-color: transparent; border: 2px solid var(--border-color); color: var(--text-light); padding: 0.4rem 0.8rem; font-size: 0.9rem; }
+.grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+.member-card, .event-card, .benefit-card { position: relative; padding: 1.5rem; display: flex; flex-direction: column; }
+.card-admin-actions { position: absolute; top: 1rem; right: 1rem; display: flex; gap: 0.5rem; }
+.card-admin-actions button { padding: 0.4rem; font-size: 0.8rem; cursor: pointer; }
+.member-card h3, .event-card h3, .benefit-card h3 { font-size: 1.25rem; font-weight: 800; }
+.member-card .empresa { color: var(--primary-blue); font-weight: 700; margin-bottom: 0.75rem; }
+.member-card .descripcion { font-size: 0.9rem; color: var(--text-light); border-left: 3px solid var(--border-color); padding-left: 1rem; margin: 0.5rem 0 1rem 0; font-style: italic; }
+.member-links { margin-top: auto; padding-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+.btn-social { padding: 0.4rem 0.8rem !important; font-size: 0.9rem !important; }
+.event-card .date { font-weight: 700; color: var(--primary-green); margin: 0.5rem 0; }
+.map-card { padding: 0; overflow: hidden; }
+#map { height: 500px; width: 100%; }
+/* --- ESTILOS PARA LA LEYENDA DEL MAPA --- */
+#map-legend h3 { text-align: center; margin-bottom: 1rem; }
+#map-legend ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+#map-legend li { display: flex; align-items: center; gap: 0.5rem; }
+.legend-color { width: 18px; height: 18px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); }
+/* --- MODALES --- */
+.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
+.modal.active { display: flex; animation: fadeIn 0.3s; }
+.modal-content { background-color: var(--card-bg); padding: 2rem; border-radius: 12px; width: 90%; max-width: 600px; animation: slideIn 0.3s; }
+@keyframes slideIn { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+.close-modal { background: none; border: none; font-size: 2rem; cursor: pointer; color: var(--text-light); }
+#member-form, #event-form, #login-form, #benefit-form { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+#member-form { grid-template-columns: 1fr 1fr; }
+.form-group { display: flex; flex-direction: column; }
+.form-group.full-width { grid-column: 1 / -1; }
+.form-group label { margin-bottom: 0.5rem; font-weight: 700; }
+.form-group input, .form-group select, .form-group textarea { padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; font-family: 'Manrope', sans-serif; }
+.form-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem; }
+.site-footer { text-align: center; padding: 2rem; margin-top: 2rem; color: var(--text-light); }
+/* --- RESPONSIVIDAD PARA MÓVILES --- */
 @media (max-width: 768px) {
-    
-    .grid-2-cols {
-        grid-template-columns: 1fr;
-    }
-
-    /* Navegación y Encabezado */
-    .header-content {
-        flex-direction: column;
-        gap: 0.5rem;
-        padding: 0.5rem 0;
-    }
-
-    #main-nav {
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    
-    .nav-link {
-        padding: 0.3rem 0.6rem;
-        font-size: 0.9rem;
-    }
-
-    .auth-actions {
-        margin-top: 0.5rem;
-    }
-
-    /* Controles de Miembros */
-    .member-controls {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    .member-controls input, .member-controls select, .member-controls button {
-        width: 100%;
-    }
-
-    /* Mapa */
-    .map-wrapper {
-        grid-template-columns: 1fr; /* Columna única en móvil */
-        height: auto;
-    }
-    
-    #map {
-        min-height: 40vh; /* Altura mínima para el mapa en móvil */
-        margin-bottom: 1rem;
-    }
-
-    #map-legend ul {
-        flex-direction: row; /* La leyenda vuelve a fila para ocupar menos espacio */
-        justify-content: flex-start;
-    }
-    
-    .legend-filter-btn {
-        width: auto;
-    }
-
-    /* Modales: Ajuste fino para pantallas muy pequeñas */
-    .modal-content {
-        width: 95%;
-        margin: 1rem 0.5rem;
-        padding: 1rem;
-        font-size: 0.95rem;
-    }
-    .form-group label {
-        font-size: 0.85rem;
-    }
-    .form-group input, .form-group select, .form-group textarea {
-        padding: 0.5rem;
-        font-size: 0.95rem;
-    }
-    .form-actions {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    .form-actions button {
-        width: 100%;
-        justify-content: center;
-    }
+    .site-header { flex-direction: column; gap: 1rem; }
+    .nav-link { margin: 0; padding: 0.5rem; }
+    .brand-title { display: none; }
+    #member-form { grid-template-columns: 1fr; }
+    .button-group, .action-buttons-miembros { flex-direction: column; } /* Ajuste de botones para móvil */
+    .filters { flex-direction: column; }
+    .search-input { min-width: 100%; }
 }
