@@ -3,84 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Miembros y Mapa</title>
+    <title>Comunidad LFP - Mapa y Directorio</title>
     
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"
-        integrity="sha256-p6Kj6vN6J9E6N6gC/1lE5Fw6eI1pC3H7E5B5J0f5S0c="
-        crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" crossorigin=""/>
     
     <link rel="stylesheet" href="style.css">
     
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
 
-    <header class="header">
-        <h1>Miembros de la Comunidad</h1>
-        <nav>
-            <button id="nav-mapa" class="active" data-target="page-mapa">
-                <i class="material-icons">map</i> Mapa
-            </button>
-            <button id="nav-lista" data-target="page-lista">
-                <i class="material-icons">list</i> Lista
-            </button>
-        </nav>
+    <header id="main-header">
+        <div class="header-content container">
+            <div class="logo">Comunidad LFP</div>
+            <nav id="main-nav">
+                <a href="#" class="nav-link" data-page="inicio">Inicio</a>
+                <a href="#" class="nav-link" data-page="miembros">Miembros</a>
+                <a href="#" class="nav-link" data-page="eventos">Eventos</a>
+                <a href="#" class="nav-link" data-page="beneficios">Beneficios</a>
+                <a href="#" class="nav-link" data-page="mapa">Mapa</a>
+            </nav>
+            <div class="auth-actions">
+                <button id="login-btn" class="btn-outline">Configuración</button>
+                <button id="logout-btn" class="btn-outline admin-only" style="display: none;">Cerrar Sesión</button>
+            </div>
+        </div>
     </header>
 
     <main class="container">
 
-        <section id="page-mapa" class="page active">
+        <section id="page-inicio" class="page active">
+            <div class="hero-section card">
+                <h2>Bienvenido a la Comunidad LFP</h2>
+                <p>Esta es una herramienta para fortalecer lazos entre profesionales y emprendedores. Explora, conecta y participa.</p>
+                <div class="hero-actions">
+                    <button id="goto-members-btn" class="btn-primary">Ver Miembros</button>
+                    <button id="open-member-modal-hero" class="btn-success">Agregar Nuevo Miembro</button>
+                </div>
+            </div>
+            
+            <div class="grid-2-cols">
+                <div class="card">
+                    <h3>Próximos Eventos</h3>
+                    <div id="home-events-container">
+                        </div>
+                    <button class="btn-outline" onclick="showPage('eventos')">Ver todos los Eventos</button>
+                </div>
+                <div class="card">
+                    <h3>Características Principales</h3>
+                    <ul>
+                        <li>Filtro por rubro para encontrar rápidamente a los miembros.</li>
+                        <li>Mapa interactivo con la ubicación de los miembros.</li>
+                        <li>Formulario para agregar nuevos miembros desde el sitio.</li>
+                        <li>Diseño responsive que se adapta a cualquier dispositivo.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-miembros" class="page">
+            <h2>Directorio de Miembros</h2>
+            
+            <div class="member-controls">
+                <input type="text" id="search-members" placeholder="Buscar por nombre o empresa">
+                <select id="filter-rubro">
+                    <option value="">Filtrar por Rubro (Todos)</option>
+                    <option value="Industria / Producción">Industria / Producción</option>
+                    <option value="Comercio / Ventas">Comercio / Ventas</option>
+                    <option value="Servicios / Oficios">Servicios / Oficios</option>
+                    <option value="Construcción">Construcción</option>
+                    <option value="Transporte / Logística">Transporte / Logística</option>
+                    <option value="Gastronomía">Gastronomía</option>
+                    <option value="Educación / Cultura">Educación / Cultura</option>
+                    <option value="Salud / Bienestar">Salud / Bienestar</option>
+                    <option value="Tecnología / Comunicación">Tecnología / Comunicación</option>
+                    <option value="Agro / Medioambiente">Agro / Medioambiente</option>
+                    <option value="Administración / Finanzas">Administración / Finanzas</option>
+                    <option value="Estudiante">Estudiante</option>
+                    <option value="Otro">Otro</option>
+                </select>
+                <button id="open-member-modal-members" class="btn-success">Agregar Nuevo</button>
+                <button id="download-members-csv-btn" class="btn-outline admin-only" style="display: none;">Descargar CSV</button>
+            </div>
+            
+            <div class="member-grid" id="members-container">
+                </div>
+        </section>
+
+        <section id="page-eventos" class="page">
+            <h2>Todos los Eventos</h2>
+            <button id="open-event-modal-btn" class="btn-success admin-only" style="display: none;">
+                <i class="material-icons">event_note</i> Crear Evento
+            </button>
+            <div id="events-container" class="grid-2-cols">
+                </div>
+        </section>
+
+        <section id="page-beneficios" class="page">
+            <h2>Beneficios Exclusivos</h2>
+            <button id="open-benefit-modal-btn" class="btn-success admin-only" style="display: none;">
+                <i class="material-icons">card_giftcard</i> Crear Beneficio
+            </button>
+            <div id="benefits-container" class="member-grid">
+                </div>
+        </section>
+
+        <section id="page-mapa" class="page">
             <h2>Mapa de Miembros</h2>
             
-            <div class="map-container">
+            <div class="map-wrapper">
                 <div id="map"></div>
                 
                 <div id="map-legend" class="card">
-                    <h3>Leyenda por Rubro</h3>
                     </div>
-            </div>
-            
-        </section>
-
-        <section id="page-lista" class="page hidden">
-            <div class="list-controls">
-                <h2>Lista de Miembros</h2>
-                <button id="toggle-modal" class="btn-primary">
-                    <i class="material-icons">person_add</i> Agregar Miembro
-                </button>
-            </div>
-            
-            <div class="card">
-                <table id="member-table">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Rubro</th>
-                            <th>Email</th>
-                            <th>Coordenadas (Lat, Lng)</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="member-list-body">
-                        </tbody>
-                </table>
-            </div>
-            <p id="empty-list-message" style="text-align: center; margin-top: 20px; display: none;">
-                No hay miembros registrados. ¡Agrega el primero!
-            </p>
-        </section>
-
-        <section id="page-cargado" class="page hidden">
-            <div class="success-message">
-                <h2>¡Miembro Guardado!</h2>
-                <p>La información ha sido registrada y el mapa actualizado.</p>
-                <button id="back-to-list-btn" class="btn-secondary">Volver a la Lista</button>
             </div>
         </section>
 
     </main>
+    
+    <footer>
+        <div class="container">
+            © 2025 Comunidad LFP - Todos los derechos reservados.
+        </div>
+    </footer>
+
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>Acceso de Administrador</h3>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-password">Contraseña</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn-primary">Ingresar</button>
+            </form>
+        </div>
+    </div>
 
     <div id="member-modal" class="modal">
         <div class="modal-content">
@@ -90,63 +149,86 @@
             <form id="member-form">
                 <input type="hidden" id="member-edit-index" value="">
                 
-                <div class="form-group">
-                    <label for="nombre">Nombre Completo *</label>
-                    <input type="text" id="nombre" required>
-                </div>
+                <div class="form-group"><label for="nombre">Nombre *</label><input type="text" id="nombre" required></div>
+                <div class="form-group"><label for="apellido">Apellido *</label><input type="text" id="apellido" required></div>
+                <div class="form-group"><label for="empresa">Empresa/Proyecto *</label><input type="text" id="empresa" required></div>
+                <div class="form-group"><label for="email">Email *</label><input type="email" id="email" required></div>
+                <div class="form-group"><label for="telefono">Teléfono</label><input type="tel" id="telefono"></div>
+                <div class="form-group"><label for="descripcion">Descripción (1-2 líneas sobre lo que haces)</label><textarea id="descripcion"></textarea></div>
 
-                <div class="form-group">
-                    <label for="email">Email *</label>
-                    <input type="email" id="email" required>
-                </div>
-                
                 <div class="form-group">
                     <label for="rubro">Rubro / Actividad *</label>
                     <select id="rubro" required>
                         <option value="" disabled selected>Selecciona un rubro</option>
-                        <option value="Servicios Profesionales">Servicios Profesionales</option>
-                        <option value="Comercio y Retail">Comercio y Retail</option>
+                        <option value="Industria / Producción">Industria / Producción</option>
+                        <option value="Comercio / Ventas">Comercio / Ventas</option>
+                        <option value="Servicios / Oficios">Servicios / Oficios</option>
+                        <option value="Construcción">Construcción</option>
+                        <option value="Transporte / Logística">Transporte / Logística</option>
+                        <option value="Gastronomía">Gastronomía</option>
+                        <option value="Educación / Cultura">Educación / Cultura</option>
+                        <option value="Salud / Bienestar">Salud / Bienestar</option>
+                        <option value="Tecnología / Comunicación">Tecnología / Comunicación</option>
+                        <option value="Agro / Medioambiente">Agro / Medioambiente</option>
+                        <option value="Administración / Finanzas">Administración / Finanzas</option>
                         <option value="Estudiante">Estudiante</option>
-                        <option value="Tecnología">Tecnología</option>
                         <option value="Otro">Otro</option>
                     </select>
                 </div>
-                
                 <div class="form-group" id="estudiante-group" style="display: none;">
                     <label for="estudiante-detalle">Detalle de Estudios</label>
-                    <input type="text" id="estudiante-detalle" placeholder="Ej: Ingeniería Informática, 3er año">
+                    <input type="text" id="estudiante-detalle" placeholder="Ej: Ingeniería, 3er año">
                 </div>
 
                 <div class="form-group">
-                    <label for="direccion">Dirección/Ciudad (Opcional)</label>
-                    <input type="text" id="direccion">
-                </div>
-
-                <div class="form-group">
-                    <label for="latitud">Latitud *</label>
-                    <input type="number" id="latitud" step="any" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="longitud">Longitud *</label>
-                    <input type="number" id="longitud" step="any" required>
+                    <label for="direccion">Dirección/Localidad (Para Ubicación en Mapa)</label>
+                    <input type="text" id="direccion" placeholder="Ej: Av. Principal 1234, Córdoba">
                 </div>
                 
+                <div class="form-group"><label for="instagram">Instagram Empresa (sin @)</label><input type="text" id="instagram"></div>
+                <div class="form-group"><label for="instagram-personal">Instagram Personal (sin @)</label><input type="text" id="instagram-personal"></div>
+                <div class="form-group"><label for="x-twitter">X (Twitter) (sin @)</label><input type="text" id="x-twitter"></div>
+                <div class="form-group"><label for="web">Sitio Web (ej: www.miempresa.com)</label><input type="text" id="web"></div>
+                
                 <div class="form-actions">
-                    <button type="submit" class="btn-primary">
-                        <i class="material-icons">save</i> Guardar Miembro
-                    </button>
-                    <button type="button" class="btn-secondary close-modal">
-                        <i class="material-icons">cancel</i> Cancelar
-                    </button>
+                    <button type="submit" class="btn-primary">Guardar Miembro</button>
+                    <button type="button" class="btn-secondary close-modal">Cancelar</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"
-        integrity="sha256-1gI3B0z8tGv3P1rO4uLgH8B6W3uJ0VpP6L7Z1N1t2kQ="
-        crossorigin=""></script>
+    <div id="event-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>Crear Nuevo Evento</h3>
+            <form id="event-form">
+                <div class="form-group"><label for="event-title">Título *</label><input type="text" id="event-title" required></div>
+                <div class="form-group"><label for="event-date">Fecha *</label><input type="date" id="event-date" required></div>
+                <div class="form-group"><label for="event-desc">Descripción</label><textarea id="event-desc" required></textarea></div>
+                <button type="submit" class="btn-primary">Crear Evento</button>
+                <button type="button" class="btn-secondary close-modal">Cancelar</button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="benefit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 id="benefit-modal-title">Crear Nuevo Beneficio</h3>
+            <form id="benefit-form">
+                <div class="form-group"><label for="benefit-title">Título de la Oferta *</label><input type="text" id="benefit-title" required></div>
+                <div class="form-group"><label for="benefit-desc">Descripción del Beneficio *</label><textarea id="benefit-desc" required></textarea></div>
+                <div class="form-group"><label for="benefit-code">Código de Descuento (si aplica)</label><input type="text" id="benefit-code"></div>
+                <div class="form-group"><label for="benefit-link">Enlace a la Oferta</label><input type="url" id="benefit-link"></div>
+                <button type="submit" class="btn-primary">Crear Beneficio</button>
+                <button type="button" class="btn-secondary close-modal">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js" crossorigin=""></script>
         
     <script src="script.js"></script>
 
