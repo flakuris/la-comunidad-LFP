@@ -57,10 +57,10 @@ main { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
 .btn-danger { background-color: var(--danger-red); color: white; }
 .btn-outline { background-color: transparent; border: 2px solid var(--border-color); color: var(--text-light); padding: 0.4rem 0.8rem; font-size: 0.9rem; }
 .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-.member-card, .event-card { position: relative; padding: 1.5rem; display: flex; flex-direction: column; }
+.member-card, .event-card, .benefit-card { position: relative; padding: 1.5rem; display: flex; flex-direction: column; }
 .card-admin-actions { position: absolute; top: 1rem; right: 1rem; display: flex; gap: 0.5rem; }
 .card-admin-actions button { padding: 0.4rem; font-size: 0.8rem; cursor: pointer; }
-.member-card h3, .event-card h3 { font-size: 1.25rem; font-weight: 800; }
+.member-card h3, .event-card h3, .benefit-card h3 { font-size: 1.25rem; font-weight: 800; }
 .member-card .empresa { color: var(--primary-blue); font-weight: 700; margin-bottom: 0.75rem; }
 .member-card .descripcion { font-size: 0.9rem; color: var(--text-light); border-left: 3px solid var(--border-color); padding-left: 1rem; margin: 0.5rem 0 1rem 0; font-style: italic; }
 .member-links { margin-top: auto; padding-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
@@ -80,7 +80,7 @@ main { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
 @keyframes slideIn { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
 .close-modal { background: none; border: none; font-size: 2rem; cursor: pointer; color: var(--text-light); }
-#member-form, #event-form, #login-form { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+#member-form, #event-form, #login-form, #benefit-form { display: grid; grid-template-columns: 1fr; gap: 1rem; }
 #member-form { grid-template-columns: 1fr 1fr; }
 .form-group { display: flex; flex-direction: column; }
 .form-group.full-width { grid-column: 1 / -1; }
