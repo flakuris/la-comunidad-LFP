@@ -1,49 +1,390 @@
-/* --- ESTILOS PARA MODALES: FIX RESPONSIVIDAD (IMPORTANTE PARA MÓVILES) --- */
+/* ========================================================== */
+/* 1. RESET Y VARIABLES GLOBALES */
+/* ========================================================== */
+:root {
+    --primary-blue: #2563eb;
+    --primary-green: #10b981;
+    --primary-red: #ef4444;
+    --bg-color: #f8f9fa;
+    --card-bg: #ffffff;
+    --text-dark: #212529;
+    --text-light: #495057;
+    --border-color: #e2e8f0;
+    --shadow-color: rgba(0, 0, 0, 0.05);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-dark);
+    line-height: 1.6;
+}
+
+.container {
+    width: 95%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 0;
+}
+
+/* ========================================================== */
+/* 2. DISEÑO Y TIPOGRAFÍA */
+/* ========================================================== */
+
+h2 {
+    color: var(--primary-blue);
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+}
+
+h3 {
+    margin-top: 0;
+    font-size: 1.25rem;
+}
+
+.card {
+    background-color: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px var(--shadow-color);
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+/* Grillas Generales */
+.grid-2-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+/* Ocultar/Mostrar Páginas */
+.page {
+    display: none;
+    padding: 1rem 0;
+}
+.page.active {
+    display: block;
+}
+
+/* ========================================================== */
+/* 3. BOTONES Y FORMULARIOS */
+/* ========================================================== */
+
+.btn-primary, .btn-secondary, .btn-success, .btn-outline, .btn-danger {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s, box-shadow 0.2s, border-color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    text-align: center;
+}
+
+.btn-primary {
+    background-color: var(--primary-blue);
+    color: white;
+}
+.btn-primary:hover {
+    background-color: #1e40af;
+}
+
+.btn-success {
+    background-color: var(--primary-green);
+    color: white;
+}
+.btn-success:hover {
+    background-color: #059669;
+}
+
+.btn-secondary {
+    background-color: var(--text-light);
+    color: white;
+}
+.btn-secondary:hover {
+    background-color: #343a40;
+}
+
+.btn-danger {
+    background-color: var(--primary-red);
+    color: white;
+}
+.btn-danger:hover {
+    background-color: #c81e1e;
+}
+
+.btn-outline {
+    background-color: transparent;
+    color: var(--primary-blue);
+    border: 2px solid var(--primary-blue);
+}
+.btn-outline:hover {
+    background-color: var(--primary-blue);
+    color: white;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 0.7rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: var(--card-bg);
+}
+
+.form-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+
+/* ========================================================== */
+/* 4. ENCABEZADO Y NAVEGACIÓN */
+/* ========================================================== */
+
+#main-header {
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 1px 3px var(--shadow-color);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+}
+
+#main-nav {
+    display: flex;
+    gap: 1rem;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--text-light);
+    padding: 0.5rem 0.8rem;
+    border-radius: 4px;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--primary-blue);
+    background-color: #f0f4ff;
+}
+
+/* Footer */
+footer {
+    background-color: var(--text-dark);
+    color: white;
+    text-align: center;
+    padding: 1rem 0;
+    margin-top: 2rem;
+    font-size: 0.9rem;
+}
+
+/* ========================================================== */
+/* 5. MODALES (FIX RESPONSIVIDAD INCLUIDO) */
+/* ========================================================== */
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none; /* Oculto por defecto */
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
 
 .modal.active {
-    /* Asegura que la modal use flexbox para centrar y ocupe toda la pantalla */
     display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .modal-content {
     /* Altura máxima para permitir el desplazamiento en pantallas pequeñas */
     max-height: 90vh; 
-    
-    /* Permite el desplazamiento vertical si el contenido excede el max-height */
-    overflow-y: auto; 
-    
-    /* Ancho responsivo, con un máximo para escritorio */
+    overflow-y: auto; /* Permite el scroll si el contenido es largo */
     width: 90%; 
     max-width: 600px;
     
-    background-color: var(--bg-color);
+    background-color: var(--card-bg);
     padding: 2rem;
     border-radius: 12px;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    position: relative; 
+    position: relative;
 }
 
-/* Ajuste específico para pantallas muy pequeñas (teléfonos) */
-@media (max-width: 768px) {
-    .modal-content {
-        width: 95%;
-        margin: 1rem 0.5rem; /* Margen reducido en los lados */
-        padding: 1rem;
-    }
+.close-modal {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-light);
+    cursor: pointer;
 }
 
+/* ========================================================== */
+/* 6. VISTAS ESPECÍFICAS */
+/* ========================================================== */
 
-/* --- ESTILOS PARA EL FILTRADO INTERACTIVO DEL MAPA --- */
+/* A. MIEMBROS */
+.member-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.member-controls input, .member-controls select {
+    flex-grow: 1;
+    min-width: 150px;
+}
+
+.member-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.member-card {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.member-card h3 {
+    margin-bottom: 0.5rem;
+    color: var(--primary-blue);
+}
+
+.member-card .empresa {
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.member-card .descripcion {
+    font-style: italic;
+    margin-bottom: 1rem;
+    color: var(--text-light);
+}
+
+.member-card p {
+    font-size: 0.95rem;
+    margin-bottom: 0.4rem;
+}
+
+.member-links {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.btn-social {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+    min-width: 100px;
+    justify-content: center;
+}
+
+.card-admin-actions {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+}
+.card-admin-actions button {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+}
+
+/* B. EVENTOS y BENEFICIOS */
+.event-card, .benefit-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.event-card .date {
+    font-style: italic;
+    color: var(--text-light);
+    margin-bottom: 1rem;
+}
+
+.benefit-card .highlight-text {
+    background-color: #fffbeb;
+    color: #b45309;
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin: 1rem 0;
+}
+
+/* C. MAPA Y LEYENDA */
+.map-wrapper {
+    display: grid;
+    grid-template-columns: 3fr 1fr; /* Mapa 75%, Leyenda 25% */
+    gap: 1.5rem;
+    height: 70vh; /* Altura fija para el mapa */
+}
+
+#map {
+    height: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px var(--shadow-color);
+    z-index: 1; /* Asegura que esté sobre otros elementos */
+}
+
+#map-legend {
+    overflow-y: auto;
+}
 
 #map-legend ul {
     list-style: none;
     padding: 0;
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column; /* Cambiado a columna para mejor vista en escritorio */
     gap: 0.5rem; 
-    justify-content: center;
 }
 
 /* Estilo base del botón de filtro */
@@ -51,7 +392,8 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.4rem 0.8rem;
+    width: 100%;
+    padding: 0.5rem 0.8rem;
     border: 2px solid var(--border-color);
     border-radius: 8px;
     background-color: var(--card-bg);
@@ -59,7 +401,7 @@
     font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.2s;
-    text-align: left; /* Asegura que el texto esté alineado */
+    text-align: left;
 }
 
 .legend-filter-btn:hover {
@@ -86,4 +428,90 @@
     border-radius: 4px; 
     border: 1px solid rgba(0,0,0,0.1); 
     flex-shrink: 0;
+}
+
+
+/* ========================================================== */
+/* 7. RESPONSIVIDAD (MÓVIL) */
+/* ========================================================== */
+
+@media (max-width: 768px) {
+    
+    .grid-2-cols {
+        grid-template-columns: 1fr;
+    }
+
+    /* Navegación y Encabezado */
+    .header-content {
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 0.5rem 0;
+    }
+
+    #main-nav {
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .nav-link {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.9rem;
+    }
+
+    .auth-actions {
+        margin-top: 0.5rem;
+    }
+
+    /* Controles de Miembros */
+    .member-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .member-controls input, .member-controls select, .member-controls button {
+        width: 100%;
+    }
+
+    /* Mapa */
+    .map-wrapper {
+        grid-template-columns: 1fr; /* Columna única en móvil */
+        height: auto;
+    }
+    
+    #map {
+        min-height: 40vh; /* Altura mínima para el mapa en móvil */
+        margin-bottom: 1rem;
+    }
+
+    #map-legend ul {
+        flex-direction: row; /* La leyenda vuelve a fila para ocupar menos espacio */
+        justify-content: flex-start;
+    }
+    
+    .legend-filter-btn {
+        width: auto;
+    }
+
+    /* Modales: Ajuste fino para pantallas muy pequeñas */
+    .modal-content {
+        width: 95%;
+        margin: 1rem 0.5rem;
+        padding: 1rem;
+        font-size: 0.95rem;
+    }
+    .form-group label {
+        font-size: 0.85rem;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+        padding: 0.5rem;
+        font-size: 0.95rem;
+    }
+    .form-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .form-actions button {
+        width: 100%;
+        justify-content: center;
+    }
 }
