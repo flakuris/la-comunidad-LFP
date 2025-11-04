@@ -11,28 +11,26 @@ const rubroColors = {
 // --- ESTADO DE LA APLICACIÓN ---
 let miembros = [];
 let eventos = [];
-let beneficios = [];
+let beneficios = []; // ✅ NUEVO: Array para beneficios
 let isAdmin = false;
 let map;
 let markersLayer;
-let activeRubroFilter = null; // Filtro activo en el mapa
 
 // --- FUNCIÓN DE INICIALIZACIÓN PRINCIPAL ---
 function initializeApp() {
     loadData();
     setupEventListeners();
     checkAuthStatus();
-    // Determinar la página activa al cargar (si no hay, va a 'inicio')
-    const activePageId = sessionStorage.getItem('activePage') || 'inicio';
-    showPage(activePageId);
+    // Inicia en 'inicio' y asegura que si el mapa está activo, se renderice
+    showPage(document.querySelector('.page.active')?.id.replace('page-', '') || 'inicio');
     renderEventos("home-events-container", 3);
 }
 
-// --- ESCUCHADOR QUE GARANTIZA LA EJECUCIÓN ---
+// --- ESCUCHADOR QUE GARANTIZA LA EJECUCIÓN (CLAVE PARA BOTONES) ---
 document.addEventListener("DOMContentLoaded", initializeApp);
 window.onload = function() {
-    // Inicializa el mapa solo si la página activa es 'mapa'
-    if (document.getElementById('page-mapa')?.classList.contains('active')) {
+    // Asegura que el mapa se inicialice si el usuario va directamente a esa URL
+    if (document.getElementById('page-mapa') && document.getElementById('page-mapa').classList.contains('active')) {
         initMap();
     }
 }
@@ -48,7 +46,7 @@ function setupEventListeners() {
         });
     });
 
-    // 2. Botones de Acción Globales
+    // 2. Botones de Acción
     const gotoMembersBtn = document.getElementById('goto-members-btn');
     if (gotoMembersBtn) gotoMembersBtn.addEventListener('click', () => showPage('miembros'));
     
@@ -68,6 +66,7 @@ function setupEventListeners() {
     const openEventModalBtn = document.getElementById('open-event-modal-btn');
     if (openEventModalBtn) openEventModalBtn.addEventListener('click', openEventModal);
     
+    // ✅ NUEVO: Botón para abrir modal de beneficio
     const openBenefitModalBtn = document.getElementById('open-benefit-modal-btn');
     if (openBenefitModalBtn) openBenefitModalBtn.addEventListener('click', openBenefitModal);
 
@@ -99,26 +98,19 @@ function setupEventListeners() {
     const eventForm = document.getElementById('event-form');
     if (eventForm) eventForm.addEventListener('submit', handleEventForm);
     
+    // ✅ NUEVO: Formulario de Beneficio
     const benefitForm = document.getElementById('benefit-form');
     if (benefitForm) benefitForm.addEventListener('submit', handleBenefitForm);
 }
 
 // --- NAVEGACIÓN Y MODALES ---
 function showPage(pageId) {
-    // Guarda el estado de la página para recargas
-    sessionStorage.setItem('activePage', pageId);
-    
-    // Oculta todas las páginas
     document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
-    
-    // Muestra la página solicitada
     const pageElement = document.getElementById(`page-${pageId}`);
     if (pageElement) pageElement.classList.add("active");
     
-    // Actualiza el estado activo de los links de navegación
     document.querySelectorAll('.nav-link').forEach(link => link.classList.toggle('active', link.dataset.page === pageId));
     
-    // Inicializa el mapa si se navega a la página del mapa
     if (pageId === "mapa") initMap(); 
 }
 function toggleModal(modalId, show) {
@@ -154,7 +146,7 @@ function logout() {
     checkAuthStatus();
 }
 
-// --- MIEMBROS ---
+// --- MIEMBROS (EL RESTO ES IGUAL) ---
 function renderMiembros() {
     const container = document.getElementById("members-container");
     if (!container) return; 
@@ -166,8 +158,7 @@ function renderMiembros() {
     if (searchTerm) {
         filteredMiembros = filteredMiembros.filter(m =>
             `${m.nombre} ${m.apellido}`.toLowerCase().includes(searchTerm) ||
-            m.empresa.toLowerCase().includes(searchTerm) ||
-            m.descripcion.toLowerCase().includes(searchTerm)
+            m.empresa.toLowerCase().includes(searchTerm)
         );
     }
     if (filterValue) {
@@ -192,8 +183,6 @@ function renderMiembros() {
                 ${adminButtons}
                 <h3>${m.nombre} ${m.apellido}</h3>
                 <p class="empresa">${m.empresa}</p>
-                ${m.rubro ? `<p>Rubro: <strong>${m.rubro}</strong></p>` : ''}
-                ${m.estudianteDetalle ? `<p>Estudios: ${m.estudianteDetalle}</p>` : ''}
                 ${m.descripcion ? `<p class="descripcion">${m.descripcion}</p>` : ''}
                 <p>Email: <a href="mailto:${m.email}">${m.email}</a></p>
                 ${m.telefono ? `<p>Teléfono: <a href="tel:${m.telefono}">${m.telefono}</a></p>` : ''}
@@ -210,28 +199,26 @@ function openMemberModal(index = null) {
     const form = document.getElementById("member-form");
     if (!form) return;
     form.reset();
-    handleRubroChange(); // Asegura que el detalle de estudiante esté oculto/visible
-
-    // Configuración para edición
+    handleRubroChange();
+    
     if (index !== null && miembros[index]) {
         const m = miembros[index];
         document.getElementById("member-modal-title").textContent = "Editar Miembro";
         document.getElementById("member-edit-index").value = index;
-        document.getElementById("nombre").value = m.nombre || "";
-        document.getElementById("apellido").value = m.apellido || "";
-        document.getElementById("empresa").value = m.empresa || "";
-        document.getElementById("descripcion").value = m.descripcion || "";
-        document.getElementById("email").value = m.email || "";
+        document.getElementById("nombre").value = m.nombre;
+        document.getElementById("apellido").value = m.apellido;
+        document.getElementById("empresa").value = m.empresa;
+        document.getElementById("descripcion").value = m.descripcion;
+        document.getElementById("email").value = m.email;
         document.getElementById("telefono").value = m.telefono || "";
-        document.getElementById("direccion").value = m.direccion || "";
-        document.getElementById("rubro").value = m.rubro || "";
-        document.getElementById("instagram").value = m.instagram || "";
-        document.getElementById("instagram-personal").value = m.instagram_personal || "";
-        document.getElementById("x-twitter").value = m.x_twitter || "";
-        document.getElementById("web").value = m.web || "";
+        document.getElementById("direccion").value = m.direccion;
+        document.getElementById("rubro").value = m.rubro;
+        document.getElementById("instagram").value = m.instagram;
+        document.getElementById("instagram-personal").value = m.instagram_personal;
+        document.getElementById("x-twitter").value = m.x_twitter;
+        document.getElementById("web").value = m.web;
         document.getElementById("estudiante-detalle").value = m.estudianteDetalle || "";
-        // Al final, re-ejecuta para asegurar la visibilidad del campo estudiante
-        handleRubroChange(); 
+        handleRubroChange();
     } else {
         document.getElementById("member-modal-title").textContent = "Agregar Nuevo Miembro";
         document.getElementById("member-edit-index").value = "";
@@ -244,12 +231,10 @@ async function handleMemberForm(event) {
     const address = form.querySelector("#direccion").value.trim();
     
     let coords = { lat: null, lng: null };
-    if (address) {
-        try {
-            coords = await geocodeAddress(address);
-        } catch (e) {
-            console.error("Error al obtener coordenadas:", e);
-        }
+    try {
+        coords = await geocodeAddress(address);
+    } catch (e) {
+        console.error("Error al obtener coordenadas:", e);
     }
     
     const miembro = {
@@ -262,9 +247,9 @@ async function handleMemberForm(event) {
         direccion: address,
         rubro: form.querySelector("#rubro").value,
         estudianteDetalle: form.querySelector("#estudiante-detalle").value.trim(),
-        instagram: form.querySelector("#instagram").value.trim().replace('@', ''),
-        instagram_personal: form.querySelector("#instagram-personal").value.trim().replace('@', ''),
-        x_twitter: form.querySelector("#x-twitter").value.trim().replace('@', ''),
+        instagram: form.querySelector("#instagram").value.trim(),
+        instagram_personal: form.querySelector("#instagram-personal").value.trim(),
+        x_twitter: form.querySelector("#x-twitter").value.trim(),
         web: form.querySelector("#web").value.trim(),
         lat: coords.lat,
         lng: coords.lng
@@ -287,12 +272,8 @@ function handleRubroChange() {
     const rubroSelect = document.getElementById('rubro');
     const estudianteGroup = document.getElementById('estudiante-group');
     if (!rubroSelect || !estudianteGroup) return;
-    
-    const isEstudiante = rubroSelect.value === 'Estudiante';
-    estudianteGroup.style.display = isEstudiante ? 'block' : 'none';
-    
-    // Si cambia a otra cosa que no sea estudiante, limpia el campo
-    if (!isEstudiante && document.getElementById('estudiante-detalle')) {
+    estudianteGroup.style.display = (rubroSelect.value === 'Estudiante') ? 'block' : 'none';
+    if (rubroSelect.value !== 'Estudiante' && document.getElementById('estudiante-detalle')) {
         document.getElementById('estudiante-detalle').value = '';
     }
 }
@@ -330,7 +311,7 @@ function downloadMembersCSV() {
 }
 
 
-// --- EVENTOS (Funciones renderEventos, openEventModal, handleEventForm, deleteEvent sin cambios) ---
+// --- EVENTOS (EL RESTO ES IGUAL) ---
 function renderEventos(containerId = "events-container", limit = 0) {
     const container = document.getElementById(containerId);
     if (!container) return; 
@@ -384,7 +365,8 @@ function deleteEvent(index) {
 }
 
 
-// --- BENEFICIOS (Funciones renderBeneficios, openBenefitModal, handleBenefitForm, deleteBenefit sin cambios) ---
+// --- ✅ NUEVAS FUNCIONES DE BENEFICIOS ---
+
 function renderBeneficios() {
     const container = document.getElementById("benefits-container");
     if (!container) return; 
@@ -402,11 +384,11 @@ function renderBeneficios() {
         
         container.innerHTML += `
             <div class="card benefit-card">
+                ${adminButton}
                 <h3>${b.title}</h3>
                 <p>${b.desc}</p>
                 ${codeDisplay}
                 <div class="member-links" style="margin-top: 1rem;">${linkButton}</div>
-                ${adminButton}
             </div>`;
     });
 }
@@ -439,144 +421,73 @@ function deleteBenefit(index) {
 }
 
 
-// --- MAPA (Funciones con el fix de interactividad) ---
+// --- MAPA (EL RESTO ES IGUAL) ---
 function createCustomIcon(color) {
     const markerHtml = `<div style="background-color: ${color}; width: 2rem; height: 2rem; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 1px solid #FFFFFF; box-shadow: 0 2px 5px rgba(0,0,0,0.4);"></div>`;
     return L.divIcon({ html: markerHtml, className: "dummy", iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
 }
 function initMap() {
     if (!document.getElementById('map')) return; 
-    
-    // Inicializar el mapa solo una vez
     if (!map) {
-        // Coordenadas de Argentina central por defecto
-        map = L.map('map').setView([-34.6037, -58.3816], 4); 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
-            attribution: '&copy; OSM',
-            maxZoom: 18
-        }).addTo(map);
+        map = L.map('map').setView([-38, -63], 4);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM' }).addTo(map);
         markersLayer = L.layerGroup().addTo(map);
     }
-    
-    // Forzar la actualización del tamaño del mapa, CLAVE al cambiar de pestaña
     setTimeout(() => { 
         if(map) map.invalidateSize();
-    }, 100);
-    
+    }, 10);
     renderMapMarkers();
     renderMapLegend();
 }
-
-/**
- * Establece el filtro de rubro para el mapa y actualiza los marcadores.
- * @param {string|null} rubro - El rubro a filtrar, o null para mostrar todos.
- */
-function setMapRubroFilter(rubro) {
-    // Si el rubro seleccionado es el mismo que el filtro activo, lo desactiva.
-    if (activeRubroFilter === rubro) {
-        activeRubroFilter = null;
-    } else {
-        activeRubroFilter = rubro;
-    }
-    renderMapMarkers();
-    renderMapLegend(); // Para actualizar el estado visual (resaltado)
-}
-
-/**
- * Renderiza la leyenda interactiva del mapa con Event Listeners.
- */
 function renderMapLegend() {
     const legendContainer = document.getElementById('map-legend');
     if (!legendContainer) return;
-    legendContainer.innerHTML = '<h3>Leyenda de Rubros</h3><ul id="rubro-filter-list"></ul>';
-    const ul = document.getElementById('rubro-filter-list');
-    
-    // Botón para quitar el filtro (Mostrar Todos)
-    ul.innerHTML += `
-        <li>
-            <button class="legend-filter-btn ${activeRubroFilter === null ? 'active-filter' : ''}" data-rubro="null">
-                <span class="legend-color" style="background-color: #BDBDBD"></span>
-                Mostrar Todos
-            </button>
-        </li>
-    `;
-    
+    legendContainer.innerHTML = '<h3>Leyenda de Rubros</h3><ul>';
     for (const rubro in rubroColors) {
-        const isActive = activeRubroFilter === rubro;
-        const className = isActive ? 'legend-filter-btn active-filter' : 'legend-filter-btn';
-        
-        ul.innerHTML += `
+        legendContainer.innerHTML += `
             <li>
-                <button class="${className}" data-rubro="${rubro}">
-                    <span class="legend-color" style="background-color: ${rubroColors[rubro]}"></span>
-                    ${rubro}
-                </button>
+                <span class="legend-color" style="background-color: ${rubroColors[rubro]}"></span>
+                ${rubro}
             </li>
         `;
     }
-    
-    // CLAVE: Agregar manejador de eventos a los botones generados
-    ul.querySelectorAll('.legend-filter-btn').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const rubro = e.currentTarget.dataset.rubro;
-            // setMapRubroFilter recibe null si el rubro es "null" (string) o el nombre del rubro
-            setMapRubroFilter(rubro === 'null' ? null : rubro);
-        });
-    });
+    legendContainer.innerHTML += '</ul>';
 }
-
-/**
- * Renderiza los marcadores del mapa, aplicando el filtro activo.
- */
 function renderMapMarkers() {
     if (!markersLayer) return;
     markersLayer.clearLayers();
-    
-    let filteredMiembros = miembros.filter(m => m.lat && m.lng);
-    
-    // Aplica el filtro si hay uno activo
-    if (activeRubroFilter) {
-        filteredMiembros = filteredMiembros.filter(m => m.rubro === activeRubroFilter);
-    }
-    
-    filteredMiembros.forEach(miembro => {
+    miembros.filter(m => m.lat && m.lng).forEach(miembro => {
         const color = rubroColors[miembro.rubro] || rubroColors['Otro'];
         L.marker([miembro.lat, miembro.lng], { icon: createCustomIcon(color) })
-         .bindPopup(`<b>${miembro.nombre} ${miembro.apellido}</b><br>${miembro.empresa}<br>Rubro: ${miembro.rubro || 'N/A'}`)
+         .bindPopup(`<b>${miembro.nombre} ${miembro.apellido}</b><br>${miembro.empresa}`)
          .addTo(markersLayer);
     });
 }
 async function geocodeAddress(address) {
     if (!address) return { lat: null, lng: null };
     try {
-        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&countrycodes=ar`);
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
         const data = await response.json();
-        // Usamos una precisión mayor para evitar errores
-        return data && data.length > 0 ? { lat: parseFloat(data[0].lat).toFixed(6), lng: parseFloat(data[0].lon).toFixed(6) } : { lat: null, lng: null };
-    } catch (error) { 
-        console.error("Error de geocodificación:", error); 
-        return { lat: null, lng: null }; 
-    }
+        return data && data.length > 0 ? { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) } : { lat: null, lng: null };
+    } catch (error) { console.error("Error de geocodificación:", error); return { lat: null, lng: null }; }
 }
-
 
 // --- GUARDADO Y CARGA ---
 function saveAndRenderAll() {
     localStorage.setItem("miembros", JSON.stringify(miembros));
     localStorage.setItem("eventos", JSON.stringify(eventos));
-    localStorage.setItem("beneficios", JSON.stringify(beneficios));
+    localStorage.setItem("beneficios", JSON.stringify(beneficios)); // ✅ NUEVO: Guardar beneficios
     renderAll();
 }
 function loadData() {
     miembros = JSON.parse(localStorage.getItem("miembros")) || [];
     eventos = JSON.parse(localStorage.getItem("eventos")) || [];
-    beneficios = JSON.parse(localStorage.getItem("beneficios")) || [];
+    beneficios = JSON.parse(localStorage.getItem("beneficios")) || []; // ✅ NUEVO: Cargar beneficios
 }
 function renderAll() {
     renderMiembros();
     renderEventos("events-container");
     renderEventos("home-events-container", 3);
-    renderBeneficios();
-    // Re-renderizar mapa solo si está inicializado
+    renderBeneficios(); // ✅ NUEVO: Renderizar beneficios
     if(map) renderMapMarkers(); 
 }
