@@ -11,25 +11,25 @@ const rubroColors = {
 // --- ESTADO DE LA APLICACIÓN ---
 let miembros = [];
 let eventos = [];
-let beneficios = []; // ✅ NUEVO: Array para beneficios
+let beneficios = [];
 let isAdmin = false;
 let map;
 let markersLayer;
+let activeRubroFilter = null; // Filtro activo en el mapa
 
 // --- FUNCIÓN DE INICIALIZACIÓN PRINCIPAL ---
 function initializeApp() {
     loadData();
     setupEventListeners();
     checkAuthStatus();
-    // Inicia en 'inicio' y asegura que si el mapa está activo, se renderice
     showPage(document.querySelector('.page.active')?.id.replace('page-', '') || 'inicio');
     renderEventos("home-events-container", 3);
 }
 
-// --- ESCUCHADOR QUE GARANTIZA LA EJECUCIÓN (CLAVE PARA BOTONES) ---
+// --- ESCUCHADOR QUE GARANTIZA LA EJECUCIÓN ---
 document.addEventListener("DOMContentLoaded", initializeApp);
 window.onload = function() {
-    // Asegura que el mapa se inicialice si el usuario va directamente a esa URL
+    // Inicializa el mapa solo si estamos en la página del mapa al cargar
     if (document.getElementById('page-mapa') && document.getElementById('page-mapa').classList.contains('active')) {
         initMap();
     }
@@ -66,7 +66,6 @@ function setupEventListeners() {
     const openEventModalBtn = document.getElementById('open-event-modal-btn');
     if (openEventModalBtn) openEventModalBtn.addEventListener('click', openEventModal);
     
-    // ✅ NUEVO: Botón para abrir modal de beneficio
     const openBenefitModalBtn = document.getElementById('open-benefit-modal-btn');
     if (openBenefitModalBtn) openBenefitModalBtn.addEventListener('click', openBenefitModal);
 
@@ -98,7 +97,6 @@ function setupEventListeners() {
     const eventForm = document.getElementById('event-form');
     if (eventForm) eventForm.addEventListener('submit', handleEventForm);
     
-    // ✅ NUEVO: Formulario de Beneficio
     const benefitForm = document.getElementById('benefit-form');
     if (benefitForm) benefitForm.addEventListener('submit', handleBenefitForm);
 }
@@ -146,7 +144,7 @@ function logout() {
     checkAuthStatus();
 }
 
-// --- MIEMBROS (EL RESTO ES IGUAL) ---
+// --- MIEMBROS ---
 function renderMiembros() {
     const container = document.getElementById("members-container");
     if (!container) return; 
@@ -311,7 +309,7 @@ function downloadMembersCSV() {
 }
 
 
-// --- EVENTOS (EL RESTO ES IGUAL) ---
+// --- EVENTOS ---
 function renderEventos(containerId = "events-container", limit = 0) {
     const container = document.getElementById(containerId);
     if (!container) return; 
@@ -365,8 +363,7 @@ function deleteEvent(index) {
 }
 
 
-// --- ✅ NUEVAS FUNCIONES DE BENEFICIOS ---
-
+// --- BENEFICIOS ---
 function renderBeneficios() {
     const container = document.getElementById("benefits-container");
     if (!container) return; 
@@ -384,11 +381,11 @@ function renderBeneficios() {
         
         container.innerHTML += `
             <div class="card benefit-card">
-                ${adminButton}
                 <h3>${b.title}</h3>
                 <p>${b.desc}</p>
                 ${codeDisplay}
                 <div class="member-links" style="margin-top: 1rem;">${linkButton}</div>
+                ${adminButton}
             </div>`;
     });
 }
@@ -421,7 +418,7 @@ function deleteBenefit(index) {
 }
 
 
-// --- MAPA (EL RESTO ES IGUAL) ---
+// --- MAPA ---
 function createCustomIcon(color) {
     const markerHtml = `<div style="background-color: ${color}; width: 2rem; height: 2rem; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 1px solid #FFFFFF; box-shadow: 0 2px 5px rgba(0,0,0,0.4);"></div>`;
     return L.divIcon({ html: markerHtml, className: "dummy", iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
@@ -433,30 +430,88 @@ function initMap() {
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM' }).addTo(map);
         markersLayer = L.layerGroup().addTo(map);
     }
+    // Forzar la actualización del tamaño del mapa, crucial al cambiar de pestaña
     setTimeout(() => { 
         if(map) map.invalidateSize();
-    }, 10);
+    }, 100);
     renderMapMarkers();
     renderMapLegend();
 }
+
+/**
+ * Establece el filtro de rubro para el mapa y actualiza los marcadores.
+ * @param {string|null} rubro - El rubro a filtrar, o null para mostrar todos.
+ */
+function setMapRubroFilter(rubro) {
+    // Si el rubro seleccionado es el mismo que el filtro activo, lo desactiva.
+    if (activeRubroFilter === rubro) {
+        activeRubroFilter = null;
+    } else {
+        activeRubroFilter = rubro;
+    }
+    renderMapMarkers();
+    renderMapLegend(); // Para actualizar el estado visual (resaltado)
+}
+
+/**
+ * Renderiza la leyenda interactiva del mapa.
+ */
 function renderMapLegend() {
     const legendContainer = document.getElementById('map-legend');
     if (!legendContainer) return;
-    legendContainer.innerHTML = '<h3>Leyenda de Rubros</h3><ul>';
+    legendContainer.innerHTML = '<h3>Leyenda de Rubros</h3><ul id="rubro-filter-list"></ul>';
+    const ul = document.getElementById('rubro-filter-list');
+    
+    // Botón para quitar el filtro (Mostrar Todos)
+    ul.innerHTML += `
+        <li>
+            <button class="legend-filter-btn ${activeRubroFilter === null ? 'active-filter' : ''}" data-rubro="null">
+                <span class="legend-color" style="background-color: #BDBDBD"></span>
+                Mostrar Todos
+            </button>
+        </li>
+    `;
+    
     for (const rubro in rubroColors) {
-        legendContainer.innerHTML += `
+        const isActive = activeRubroFilter === rubro;
+        const className = isActive ? 'legend-filter-btn active-filter' : 'legend-filter-btn';
+        
+        // El dataset 'data-rubro' guarda el rubro para el event listener
+        ul.innerHTML += `
             <li>
-                <span class="legend-color" style="background-color: ${rubroColors[rubro]}"></span>
-                ${rubro}
+                <button class="${className}" data-rubro="${rubro}">
+                    <span class="legend-color" style="background-color: ${rubroColors[rubro]}"></span>
+                    ${rubro}
+                </button>
             </li>
         `;
     }
-    legendContainer.innerHTML += '</ul>';
+    
+    // Agregar manejador de eventos a la lista (solución robusta para interactividad)
+    ul.querySelectorAll('.legend-filter-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const rubro = e.currentTarget.dataset.rubro;
+            // setMapRubroFilter recibe null si el rubro es "null" (string) o el nombre del rubro
+            setMapRubroFilter(rubro === 'null' ? null : rubro);
+        });
+    });
 }
+
+/**
+ * Renderiza los marcadores del mapa, aplicando el filtro activo si existe.
+ */
 function renderMapMarkers() {
     if (!markersLayer) return;
     markersLayer.clearLayers();
-    miembros.filter(m => m.lat && m.lng).forEach(miembro => {
+    
+    let filteredMiembros = miembros.filter(m => m.lat && m.lng);
+    
+    // Aplica el filtro si hay uno activo
+    if (activeRubroFilter) {
+        filteredMiembros = filteredMiembros.filter(m => m.rubro === activeRubroFilter);
+    }
+    
+    filteredMiembros.forEach(miembro => {
         const color = rubroColors[miembro.rubro] || rubroColors['Otro'];
         L.marker([miembro.lat, miembro.lng], { icon: createCustomIcon(color) })
          .bindPopup(`<b>${miembro.nombre} ${miembro.apellido}</b><br>${miembro.empresa}`)
@@ -466,6 +521,7 @@ function renderMapMarkers() {
 async function geocodeAddress(address) {
     if (!address) return { lat: null, lng: null };
     try {
+        // Usando Nominatim de OpenStreetMap para geocodificación
         const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
         const data = await response.json();
         return data && data.length > 0 ? { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) } : { lat: null, lng: null };
@@ -476,18 +532,18 @@ async function geocodeAddress(address) {
 function saveAndRenderAll() {
     localStorage.setItem("miembros", JSON.stringify(miembros));
     localStorage.setItem("eventos", JSON.stringify(eventos));
-    localStorage.setItem("beneficios", JSON.stringify(beneficios)); // ✅ NUEVO: Guardar beneficios
+    localStorage.setItem("beneficios", JSON.stringify(beneficios));
     renderAll();
 }
 function loadData() {
     miembros = JSON.parse(localStorage.getItem("miembros")) || [];
     eventos = JSON.parse(localStorage.getItem("eventos")) || [];
-    beneficios = JSON.parse(localStorage.getItem("beneficios")) || []; // ✅ NUEVO: Cargar beneficios
+    beneficios = JSON.parse(localStorage.getItem("beneficios")) || [];
 }
 function renderAll() {
     renderMiembros();
     renderEventos("events-container");
     renderEventos("home-events-container", 3);
-    renderBeneficios(); // ✅ NUEVO: Renderizar beneficios
+    renderBeneficios();
     if(map) renderMapMarkers(); 
 }
