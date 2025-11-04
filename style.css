@@ -98,3 +98,56 @@ main { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
     .filters { flex-direction: column; }
     .search-input { min-width: 100%; }
 }
+/* --- ESTILOS PARA EL FILTRADO DE MAPA --- */
+
+#map-legend ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem; /* Reducir gap para botones */
+    justify-content: center;
+}
+
+/* Estilo base del botón de filtro */
+.legend-filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--card-bg);
+    color: var(--text-dark);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.legend-filter-btn:hover {
+    background-color: #eef2ff;
+    border-color: var(--primary-blue);
+}
+
+/* Estilo cuando el filtro está ACTIVO */
+.legend-filter-btn.active-filter {
+    background-color: var(--primary-blue);
+    color: white;
+    border-color: var(--primary-blue);
+    font-weight: 700;
+    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3); /* Sombra para resaltar */
+}
+
+.legend-filter-btn.active-filter .legend-color {
+    /* Mantiene el color original en el círculo, pero podemos añadir un borde blanco */
+    border: 2px solid white; 
+}
+
+.legend-color { 
+    width: 18px; 
+    height: 18px; 
+    border-radius: 4px; 
+    border: 1px solid rgba(0,0,0,0.1); 
+    /* Asegura que el color se vea bien */
+    flex-shrink: 0;
+}
