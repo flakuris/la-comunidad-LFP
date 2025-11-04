@@ -22,15 +22,17 @@ function initializeApp() {
     loadData();
     setupEventListeners();
     checkAuthStatus();
-    showPage(document.querySelector('.page.active')?.id.replace('page-', '') || 'inicio');
+    // Determinar la página activa al cargar (si no hay, va a 'inicio')
+    const activePageId = sessionStorage.getItem('activePage') || 'inicio';
+    showPage(activePageId);
     renderEventos("home-events-container", 3);
 }
 
 // --- ESCUCHADOR QUE GARANTIZA LA EJECUCIÓN ---
 document.addEventListener("DOMContentLoaded", initializeApp);
 window.onload = function() {
-    // Inicializa el mapa solo si estamos en la página del mapa al cargar
-    if (document.getElementById('page-mapa') && document.getElementById('page-mapa').classList.contains('active')) {
+    // Inicializa el mapa solo si la página activa es 'mapa'
+    if (document.getElementById('page-mapa')?.classList.contains('active')) {
         initMap();
     }
 }
@@ -46,7 +48,7 @@ function setupEventListeners() {
         });
     });
 
-    // 2. Botones de Acción
+    // 2. Botones de Acción Globales
     const gotoMembersBtn = document.getElementById('goto-members-btn');
     if (gotoMembersBtn) gotoMembersBtn.addEventListener('click', () => showPage('miembros'));
     
@@ -103,12 +105,20 @@ function setupEventListeners() {
 
 // --- NAVEGACIÓN Y MODALES ---
 function showPage(pageId) {
+    // Guarda el estado de la página para recargas
+    sessionStorage.setItem('activePage', pageId);
+    
+    // Oculta todas las páginas
     document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+    
+    // Muestra la página solicitada
     const pageElement = document.getElementById(`page-${pageId}`);
     if (pageElement) pageElement.classList.add("active");
     
+    // Actualiza el estado activo de los links de navegación
     document.querySelectorAll('.nav-link').forEach(link => link.classList.toggle('active', link.dataset.page === pageId));
     
+    // Inicializa el mapa si se navega a la página del mapa
     if (pageId === "mapa") initMap(); 
 }
 function toggleModal(modalId, show) {
@@ -156,7 +166,8 @@ function renderMiembros() {
     if (searchTerm) {
         filteredMiembros = filteredMiembros.filter(m =>
             `${m.nombre} ${m.apellido}`.toLowerCase().includes(searchTerm) ||
-            m.empresa.toLowerCase().includes(searchTerm)
+            m.empresa.toLowerCase().includes(searchTerm) ||
+            m.descripcion.toLowerCase().includes(searchTerm)
         );
     }
     if (filterValue) {
@@ -181,6 +192,8 @@ function renderMiembros() {
                 ${adminButtons}
                 <h3>${m.nombre} ${m.apellido}</h3>
                 <p class="empresa">${m.empresa}</p>
+                ${m.rubro ? `<p>Rubro: <strong>${m.rubro}</strong></p>` : ''}
+                ${m.estudianteDetalle ? `<p>Estudios: ${m.estudianteDetalle}</p>` : ''}
                 ${m.descripcion ? `<p class="descripcion">${m.descripcion}</p>` : ''}
                 <p>Email: <a href="mailto:${m.email}">${m.email}</a></p>
                 ${m.telefono ? `<p>Teléfono: <a href="tel:${m.telefono}">${m.telefono}</a></p>` : ''}
@@ -197,26 +210,28 @@ function openMemberModal(index = null) {
     const form = document.getElementById("member-form");
     if (!form) return;
     form.reset();
-    handleRubroChange();
-    
+    handleRubroChange(); // Asegura que el detalle de estudiante esté oculto/visible
+
+    // Configuración para edición
     if (index !== null && miembros[index]) {
         const m = miembros[index];
         document.getElementById("member-modal-title").textContent = "Editar Miembro";
         document.getElementById("member-edit-index").value = index;
-        document.getElementById("nombre").value = m.nombre;
-        document.getElementById("apellido").value = m.apellido;
-        document.getElementById("empresa").value = m.empresa;
-        document.getElementById("descripcion").value = m.descripcion;
-        document.getElementById("email").value = m.email;
+        document.getElementById("nombre").value = m.nombre || "";
+        document.getElementById("apellido").value = m.apellido || "";
+        document.getElementById("empresa").value = m.empresa || "";
+        document.getElementById("descripcion").value = m.descripcion || "";
+        document.getElementById("email").value = m.email || "";
         document.getElementById("telefono").value = m.telefono || "";
-        document.getElementById("direccion").value = m.direccion;
-        document.getElementById("rubro").value = m.rubro;
-        document.getElementById("instagram").value = m.instagram;
-        document.getElementById("instagram-personal").value = m.instagram_personal;
-        document.getElementById("x-twitter").value = m.x_twitter;
-        document.getElementById("web").value = m.web;
+        document.getElementById("direccion").value = m.direccion || "";
+        document.getElementById("rubro").value = m.rubro || "";
+        document.getElementById("instagram").value = m.instagram || "";
+        document.getElementById("instagram-personal").value = m.instagram_personal || "";
+        document.getElementById("x-twitter").value = m.x_twitter || "";
+        document.getElementById("web").value = m.web || "";
         document.getElementById("estudiante-detalle").value = m.estudianteDetalle || "";
-        handleRubroChange();
+        // Al final, re-ejecuta para asegurar la visibilidad del campo estudiante
+        handleRubroChange(); 
     } else {
         document.getElementById("member-modal-title").textContent = "Agregar Nuevo Miembro";
         document.getElementById("member-edit-index").value = "";
@@ -229,10 +244,12 @@ async function handleMemberForm(event) {
     const address = form.querySelector("#direccion").value.trim();
     
     let coords = { lat: null, lng: null };
-    try {
-        coords = await geocodeAddress(address);
-    } catch (e) {
-        console.error("Error al obtener coordenadas:", e);
+    if (address) {
+        try {
+            coords = await geocodeAddress(address);
+        } catch (e) {
+            console.error("Error al obtener coordenadas:", e);
+        }
     }
     
     const miembro = {
@@ -245,9 +262,9 @@ async function handleMemberForm(event) {
         direccion: address,
         rubro: form.querySelector("#rubro").value,
         estudianteDetalle: form.querySelector("#estudiante-detalle").value.trim(),
-        instagram: form.querySelector("#instagram").value.trim(),
-        instagram_personal: form.querySelector("#instagram-personal").value.trim(),
-        x_twitter: form.querySelector("#x-twitter").value.trim(),
+        instagram: form.querySelector("#instagram").value.trim().replace('@', ''),
+        instagram_personal: form.querySelector("#instagram-personal").value.trim().replace('@', ''),
+        x_twitter: form.querySelector("#x-twitter").value.trim().replace('@', ''),
         web: form.querySelector("#web").value.trim(),
         lat: coords.lat,
         lng: coords.lng
@@ -270,12 +287,17 @@ function handleRubroChange() {
     const rubroSelect = document.getElementById('rubro');
     const estudianteGroup = document.getElementById('estudiante-group');
     if (!rubroSelect || !estudianteGroup) return;
-    estudianteGroup.style.display = (rubroSelect.value === 'Estudiante') ? 'block' : 'none';
-    if (rubroSelect.value !== 'Estudiante' && document.getElementById('estudiante-detalle')) {
+    
+    const isEstudiante = rubroSelect.value === 'Estudiante';
+    estudianteGroup.style.display = isEstudiante ? 'block' : 'none';
+    
+    // Si cambia a otra cosa que no sea estudiante, limpia el campo
+    if (!isEstudiante && document.getElementById('estudiante-detalle')) {
         document.getElementById('estudiante-detalle').value = '';
     }
 }
 function downloadMembersCSV() {
+    // ... (función de descarga CSV sin cambios)
     if (miembros.length === 0) {
         alert("No hay miembros para exportar.");
         return;
@@ -309,7 +331,7 @@ function downloadMembersCSV() {
 }
 
 
-// --- EVENTOS ---
+// --- EVENTOS (Funciones renderEventos, openEventModal, handleEventForm, deleteEvent sin cambios) ---
 function renderEventos(containerId = "events-container", limit = 0) {
     const container = document.getElementById(containerId);
     if (!container) return; 
@@ -363,7 +385,7 @@ function deleteEvent(index) {
 }
 
 
-// --- BENEFICIOS ---
+// --- BENEFICIOS (Funciones renderBeneficios, openBenefitModal, handleBenefitForm, deleteBenefit sin cambios) ---
 function renderBeneficios() {
     const container = document.getElementById("benefits-container");
     if (!container) return; 
@@ -418,22 +440,30 @@ function deleteBenefit(index) {
 }
 
 
-// --- MAPA ---
+// --- MAPA (Funciones con el fix de interactividad) ---
 function createCustomIcon(color) {
     const markerHtml = `<div style="background-color: ${color}; width: 2rem; height: 2rem; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 1px solid #FFFFFF; box-shadow: 0 2px 5px rgba(0,0,0,0.4);"></div>`;
     return L.divIcon({ html: markerHtml, className: "dummy", iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
 }
 function initMap() {
     if (!document.getElementById('map')) return; 
+    
+    // Inicializar el mapa solo una vez
     if (!map) {
-        map = L.map('map').setView([-38, -63], 4);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM' }).addTo(map);
+        // Coordenadas de Argentina central por defecto
+        map = L.map('map').setView([-34.6037, -58.3816], 4); 
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
+            attribution: '&copy; OSM',
+            maxZoom: 18
+        }).addTo(map);
         markersLayer = L.layerGroup().addTo(map);
     }
-    // Forzar la actualización del tamaño del mapa, crucial al cambiar de pestaña
+    
+    // Forzar la actualización del tamaño del mapa, CLAVE al cambiar de pestaña
     setTimeout(() => { 
         if(map) map.invalidateSize();
     }, 100);
+    
     renderMapMarkers();
     renderMapLegend();
 }
@@ -454,7 +484,7 @@ function setMapRubroFilter(rubro) {
 }
 
 /**
- * Renderiza la leyenda interactiva del mapa.
+ * Renderiza la leyenda interactiva del mapa con Event Listeners.
  */
 function renderMapLegend() {
     const legendContainer = document.getElementById('map-legend');
@@ -476,7 +506,6 @@ function renderMapLegend() {
         const isActive = activeRubroFilter === rubro;
         const className = isActive ? 'legend-filter-btn active-filter' : 'legend-filter-btn';
         
-        // El dataset 'data-rubro' guarda el rubro para el event listener
         ul.innerHTML += `
             <li>
                 <button class="${className}" data-rubro="${rubro}">
@@ -487,7 +516,7 @@ function renderMapLegend() {
         `;
     }
     
-    // Agregar manejador de eventos a la lista (solución robusta para interactividad)
+    // CLAVE: Agregar manejador de eventos a los botones generados
     ul.querySelectorAll('.legend-filter-btn').forEach(button => {
         button.addEventListener('click', (e) => {
             const rubro = e.currentTarget.dataset.rubro;
@@ -498,7 +527,7 @@ function renderMapLegend() {
 }
 
 /**
- * Renderiza los marcadores del mapa, aplicando el filtro activo si existe.
+ * Renderiza los marcadores del mapa, aplicando el filtro activo.
  */
 function renderMapMarkers() {
     if (!markersLayer) return;
@@ -514,19 +543,23 @@ function renderMapMarkers() {
     filteredMiembros.forEach(miembro => {
         const color = rubroColors[miembro.rubro] || rubroColors['Otro'];
         L.marker([miembro.lat, miembro.lng], { icon: createCustomIcon(color) })
-         .bindPopup(`<b>${miembro.nombre} ${miembro.apellido}</b><br>${miembro.empresa}`)
+         .bindPopup(`<b>${miembro.nombre} ${miembro.apellido}</b><br>${miembro.empresa}<br>Rubro: ${miembro.rubro || 'N/A'}`)
          .addTo(markersLayer);
     });
 }
 async function geocodeAddress(address) {
     if (!address) return { lat: null, lng: null };
     try {
-        // Usando Nominatim de OpenStreetMap para geocodificación
-        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&countrycodes=ar`);
         const data = await response.json();
-        return data && data.length > 0 ? { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) } : { lat: null, lng: null };
-    } catch (error) { console.error("Error de geocodificación:", error); return { lat: null, lng: null }; }
+        // Usamos una precisión mayor para evitar errores
+        return data && data.length > 0 ? { lat: parseFloat(data[0].lat).toFixed(6), lng: parseFloat(data[0].lon).toFixed(6) } : { lat: null, lng: null };
+    } catch (error) { 
+        console.error("Error de geocodificación:", error); 
+        return { lat: null, lng: null }; 
+    }
 }
+
 
 // --- GUARDADO Y CARGA ---
 function saveAndRenderAll() {
@@ -545,5 +578,6 @@ function renderAll() {
     renderEventos("events-container");
     renderEventos("home-events-container", 3);
     renderBeneficios();
+    // Re-renderizar mapa solo si está inicializado
     if(map) renderMapMarkers(); 
 }
