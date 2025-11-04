@@ -297,7 +297,6 @@ function handleRubroChange() {
     }
 }
 function downloadMembersCSV() {
-    // ... (función de descarga CSV sin cambios)
     if (miembros.length === 0) {
         alert("No hay miembros para exportar.");
         return;
